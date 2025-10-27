@@ -52,3 +52,10 @@ void DownloadDialog::acceptButtonClicked() {
         accept();
     }
 }
+
+void DownloadDialog::setFileName(const QString &fileName) {
+    fileNameLineEdit->setText(fileName);
+    QString baseName = QFileInfo(fileName).baseName();
+    suggestedFileName = baseName;
+    acceptButton->setEnabled(!fileName.isEmpty());
+}

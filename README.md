@@ -30,7 +30,7 @@ This project is built using `qmake` and the MSVC compiler on Windows.
     ```
     cd path\to\your\browser-repo
     ```
-4.  Run `qmake` to generate the `Makefile`:
+4.  Run `qmake` to generate the `Makefile` (adjust path if needed):
     ```
     C:\Qt\6.10.0\msvc2022_64\bin\qmake.exe
     ```
@@ -38,7 +38,15 @@ This project is built using `qmake` and the MSVC compiler on Windows.
     ```
     nmake
     ```
-6.  The executable (`browser.exe`) will be in the `build` directory.
+6.  Navigate into the build output directory:
+    ```
+    cd build
+    ```
+7.  Deploy the necessary Qt DLLs using `windeployqt` (adjust path if needed):
+    ```
+    C:\Qt\6.10.0\msvc2022_64\bin\windeployqt.exe browser.exe
+    ```
+8.  The executable (`browser.exe`) and all required files are now in the `build` directory, ready to run.
 
 ## License
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.

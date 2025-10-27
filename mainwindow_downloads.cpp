@@ -1,3 +1,5 @@
+#include <QtWebEngineCore/QWebEngineDownloadRequest>
+
 #include "mainwindow.h"
 #include "downloaddialog.h"
 

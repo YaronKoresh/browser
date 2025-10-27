@@ -22,6 +22,17 @@
 #include <QtWebEngineCore/QWebEnginePage>
 #include <QtNetwork/QNetworkAccessManager>
 
+QString MainWindow::formatBytes(qint64 bytes) {
+    if (bytes < 1024)
+        return QString("%1 B").arg(bytes);
+    else if (bytes < 1024 * 1024)
+        return QString("%1 KB").arg(bytes / 1024.0, 0, 'f', 2);
+    else if (bytes < 1024 * 1024 * 1024)
+        return QString("%1 MB").arg(bytes / (1024.0 * 1024.0), 0, 'f', 2);
+    else
+        return QString("%1 GB").arg(bytes / (1024.0 * 1024.0 * 1024.0), 0, 'f', 2);
+}
+
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), historyIndex(-1), currentDownloadFile(nullptr) {
     addressBar = new QLineEdit(this);
     goButton = new QPushButton("Go", this);
