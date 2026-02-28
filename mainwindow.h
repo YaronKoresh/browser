@@ -2,79 +2,117 @@
 #define MAINWINDOW_H
 
 #include <QtWidgets/QMainWindow>
-#include <QtCore/QUrl>
 #include <QtGui/QCloseEvent>
 
 class QLineEdit;
 class QPushButton;
-class QWebEngineView;
-class QStatusBar;
 class QProgressBar;
-class QListWidget;
-class QDialog;
-class QNetworkAccessManager;
-class QNetworkReply;
-class QFile;
+class QAction;
+class QCompleter;
+class QStringListModel;
 class QWebEngineDownloadRequest;
 class QTextEdit;
+class QDialog;
+class QListView;
+
+class TabManager;
+class BrowserTab;
+class DownloadManager;
+class BookmarkManager;
+class FindBar;
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
+
 public:
-    MainWindow(QWidget *parent = nullptr);
-    ~MainWindow() = default;
+    explicit MainWindow(QWidget *parent = nullptr);
+    ~MainWindow() override = default;
 
 protected:
     void closeEvent(QCloseEvent *event) override;
 
 private slots:
-    void loadUrl();
-    void updateAddressBar(const QUrl &url);
-    void updateWindowTitle(bool ok);
-    void goBack();
-    void goForward();
-    void handleLoadStarted();
-    void handleLoadProgress(int progress);
-    void handleLoadFinished(bool ok);
-    void handleDownloadRequested(QWebEngineDownloadRequest *download);
-    void downloadFinished(QNetworkReply *reply);
-    void downloadProgress(qint64 bytesReceived, qint64 bytesTotal);
-    void cancelDownload();
-    void retryDownload();
+    void navigateFromAddressBar();
+    void onBackClicked();
+    void onForwardClicked();
+
+    void onCurrentTabChanged(BrowserTab *tab);
+    void onTabTitleChanged(const QString &title);
+    void onTabUrlChanged(const QUrl &url);
+    void onTabLoadStarted();
+    void onTabLoadProgress(int progress);
+    void onTabLoadFinished(bool ok);
+    void onLastTabClosed();
+
+    void onDownloadRequested(QWebEngineDownloadRequest *download);
+    void onDownloadCompleted(int id, const QString &savePath);
+    void onDownloadFailed(int id, const QString &error);
+
+    void createNewTab();
+    void createPrivateTab();
+    void closeCurrentTab();
     void showDownloadManager();
     void refreshPage();
     void viewSource();
-    void handleSourceCode(const QString& source);
+    void handleSourceCode(const QString &source);
     void showAboutDialog();
+    void showPreferences();
+
+    void toggleBookmark();
+    void showBookmarkManager();
+    void onBookmarksChanged();
+
+    void toggleFindBar();
+    void onFindRequested(const QString &text, bool forward);
+    void onFindCleared();
+
+    void zoomIn();
+    void zoomOut();
+    void zoomReset();
+
+    void toggleFullscreen();
+
+    void printPage();
 
 private:
+    void setupCentralUI();
+    void setupToolBar();
+    void setupStatusBar();
     void setupDownloadManagerDialog();
-    QString formatBytes(qint64 bytes);
+    void setupSourceDialog();
+    void setupAboutDialog();
+    void setupShortcuts();
+    void setupAddressBarCompleter();
+    void connectGlobalSignals();
 
-    QLineEdit *addressBar;
-    QPushButton *goButton;
-    QPushButton *backButton;
-    QPushButton *forwardButton;
-    QWebEngineView *webView;
-    QList<QUrl> history;
-    int historyIndex;
-    QStatusBar *statusBar;
-    QProgressBar *progressBar;
-    QListWidget *downloadList;
-    QDialog *downloadManagerDialog;
-    QPushButton *cancelDownloadButton;
-    QPushButton *retryDownloadButton;
-    QNetworkAccessManager *networkManager;
-    QNetworkReply *currentDownloadReply;
-    QString currentDownloadFileName;
-    QString currentDownloadSavePath;
-    QFile *currentDownloadFile;
-    qint64 totalBytesToDownload;
-    qint64 bytesDownloaded;
-    bool m_isClosing = false;
-    QTextEdit *sourceView;
-    QDialog *sourceDialog;
-    QDialog *aboutDialog;
+    void updateNavigationButtons();
+    void updateCompleterModel();
+    void disconnectCurrentTab();
+    void connectCurrentTab(BrowserTab *tab);
+    void navigateToInput(const QString &input);
+
+    QLineEdit         *m_addressBar         = nullptr;
+    QPushButton       *m_goButton           = nullptr;
+    QPushButton       *m_backButton         = nullptr;
+    QPushButton       *m_forwardButton      = nullptr;
+    QPushButton       *m_bookmarkButton     = nullptr;
+    QProgressBar      *m_progressBar        = nullptr;
+    FindBar           *m_findBar            = nullptr;
+    QCompleter        *m_completer          = nullptr;
+    QStringListModel  *m_completerModel     = nullptr;
+
+    TabManager        *m_tabManager         = nullptr;
+    DownloadManager   *m_downloadManager    = nullptr;
+    BookmarkManager   *m_bookmarkManager    = nullptr;
+
+    QDialog           *m_downloadDialog     = nullptr;
+    QListView         *m_downloadListView   = nullptr;
+    QDialog           *m_sourceDialog       = nullptr;
+    QTextEdit         *m_sourceView         = nullptr;
+    QDialog           *m_aboutDialog        = nullptr;
+
+    bool               m_isClosing          = false;
+    BrowserTab        *m_connectedTab       = nullptr;
 };
 
-#endif // MAINWINDOW_H
+#endif

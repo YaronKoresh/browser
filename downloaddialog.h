@@ -9,23 +9,25 @@ class QPushButton;
 
 class DownloadDialog : public QDialog {
     Q_OBJECT
+
 public:
-    DownloadDialog(QWidget *parent = nullptr);
-    ~DownloadDialog() = default;
-    QString getSavePath() const { return savePath; }
+    explicit DownloadDialog(QWidget *parent = nullptr);
+    ~DownloadDialog() override = default;
+
+    [[nodiscard]] QString getSavePath() const;
     void setFileName(const QString &fileName);
 
 private slots:
-    void browseButtonClicked();
-    void acceptButtonClicked();
+    void onBrowseClicked();
+    void onAcceptClicked();
 
 private:
-    QLineEdit *fileNameLineEdit;
-    QPushButton *browseButton;
-    QPushButton *acceptButton;
-    QPushButton *cancelButton;
-    QString savePath;
-    QString suggestedFileName;
+    QLineEdit   *m_fileNameInput     = nullptr;
+    QPushButton *m_browseButton      = nullptr;
+    QPushButton *m_acceptButton      = nullptr;
+    QPushButton *m_cancelButton      = nullptr;
+    QString      m_savePath;
+    QString      m_suggestedFileName;
 };
 
 #endif // DOWNLOADDIALOG_H

@@ -1,4 +1,5 @@
 #include "downloaddialog.h"
+#include "constants.h"
 
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QPushButton>
@@ -8,54 +9,86 @@
 #include <QtWidgets/QFileDialog>
 #include <QtCore/QFileInfo>
 #include <QtCore/QDir>
+#include <QtCore/QStandardPaths>
 
-DownloadDialog::DownloadDialog(QWidget *parent) : QDialog(parent) {
-    setWindowTitle("Save File");
-    fileNameLineEdit = new QLineEdit(this);
-    browseButton = new QPushButton("Browse...", this);
-    acceptButton = new QPushButton("Accept", this);
-    cancelButton = new QPushButton("Cancel", this);
-    QFormLayout *formLayout = new QFormLayout;
-    formLayout->addRow("File Name:", fileNameLineEdit);
-    QHBoxLayout *buttonLayout = new QHBoxLayout;
-    buttonLayout->addWidget(browseButton);
-    buttonLayout->addWidget(acceptButton);
-    buttonLayout->addWidget(cancelButton);
-    QVBoxLayout *mainLayout = new QVBoxLayout;
+DownloadDialog::DownloadDialog(QWidget *parent)
+    : QDialog(parent)
+{
+    setWindowTitle(tr("Save File"));
+
+    m_fileNameInput = new QLineEdit(this);
+    m_browseButton  = new QPushButton(AppConstants::LABEL_BROWSE, this);
+    m_acceptButton  = new QPushButton(AppConstants::LABEL_ACCEPT, this);
+    m_cancelButton  = new QPushButton(AppConstants::LABEL_CANCEL, this);
+
+    auto *formLayout = new QFormLayout;
+    formLayout->addRow(tr("File Name:"), m_fileNameInput);
+
+    auto *buttonLayout = new QHBoxLayout;
+    buttonLayout->addWidget(m_browseButton);
+    buttonLayout->addWidget(m_acceptButton);
+    buttonLayout->addWidget(m_cancelButton);
+
+    auto *mainLayout = new QVBoxLayout;
     mainLayout->addLayout(formLayout);
     mainLayout->addLayout(buttonLayout);
     setLayout(mainLayout);
-    connect(browseButton, &QPushButton::clicked, this, &DownloadDialog::browseButtonClicked);
-    connect(acceptButton, &QPushButton::clicked, this, &DownloadDialog::acceptButtonClicked);
-    connect(cancelButton, &QPushButton::clicked, this, &QDialog::reject);
-    connect(fileNameLineEdit, &QLineEdit::textChanged, this, [this](const QString& text){
-        acceptButton->setEnabled(!text.isEmpty());
+
+    connect(m_browseButton, &QPushButton::clicked,
+            this, &DownloadDialog::onBrowseClicked);
+    connect(m_acceptButton, &QPushButton::clicked,
+            this, &DownloadDialog::onAcceptClicked);
+    connect(m_cancelButton, &QPushButton::clicked,
+            this, &QDialog::reject);
+    connect(m_fileNameInput, &QLineEdit::textChanged, this, [this](const QString &text) {
+        m_acceptButton->setEnabled(!text.trimmed().isEmpty());
     });
-    acceptButton->setEnabled(false);
+
+    m_acceptButton->setEnabled(false);
 }
 
-void DownloadDialog::browseButtonClicked() {
-    QString directory = QFileDialog::getExistingDirectory(this, "Choose Directory", QDir::homePath());
+QString DownloadDialog::getSavePath() const
+{
+    return m_savePath;
+}
+
+void DownloadDialog::setFileName(const QString &fileName)
+{
+    m_suggestedFileName = QFileInfo(fileName).fileName();
+
+    const QString downloadDir =
+        QStandardPaths::writableLocation(QStandardPaths::DownloadLocation);
+    const QString fullPath = downloadDir + "/" + m_suggestedFileName;
+
+    m_fileNameInput->setText(fullPath);
+    m_acceptButton->setEnabled(!fileName.isEmpty());
+}
+
+void DownloadDialog::onBrowseClicked()
+{
+    const QString startDir = QFileInfo(m_fileNameInput->text()).path();
+    const QString directory = QFileDialog::getExistingDirectory(
+        this, tr("Choose Directory"),
+        startDir.isEmpty() ? QDir::homePath() : startDir);
+
     if (!directory.isEmpty()) {
-        savePath = directory + "/" + fileNameLineEdit->text();
-        fileNameLineEdit->setText(savePath);
+        const QString currentName = QFileInfo(m_fileNameInput->text()).fileName();
+        const QString name = currentName.isEmpty() ? m_suggestedFileName : currentName;
+        m_savePath = directory + "/" + name;
+        m_fileNameInput->setText(m_savePath);
     }
 }
 
-void DownloadDialog::acceptButtonClicked() {
-    savePath = fileNameLineEdit->text();
-    if(!savePath.isEmpty()){
-       QFileInfo fileInfo(savePath);
-        if(fileInfo.fileName().isEmpty()){
-             savePath += "/" + suggestedFileName;
-        }
-        accept();
-    }
-}
+void DownloadDialog::onAcceptClicked()
+{
+    m_savePath = m_fileNameInput->text().trimmed();
+    if (m_savePath.isEmpty())
+        return;
 
-void DownloadDialog::setFileName(const QString &fileName) {
-    fileNameLineEdit->setText(fileName);
-    QString baseName = QFileInfo(fileName).baseName();
-    suggestedFileName = baseName;
-    acceptButton->setEnabled(!fileName.isEmpty());
+    QFileInfo fileInfo(m_savePath);
+    if (fileInfo.fileName().isEmpty()) {
+        m_savePath += "/" + m_suggestedFileName;
+    }
+
+    accept();
 }
