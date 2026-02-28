@@ -1,6 +1,7 @@
 #include "thememanager.h"
 
 #include <QtWidgets/QApplication>
+#include <QtWidgets/QStyle>
 #include <QtGui/QPalette>
 #include <QtGui/QColor>
 #include <QtGui/QStyleHints>

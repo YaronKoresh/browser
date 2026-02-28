@@ -217,7 +217,7 @@ void DownloadManager::startDownload(int id)
         return;
     }
 
-    auto file = std::make_unique<QFile>(item.savePath);
+    auto file = QSharedPointer<QFile>::create(item.savePath);
     if (!file->open(QIODevice::WriteOnly)) {
         const QString err = QString("Could not open file for writing: %1").arg(item.savePath);
         m_model->updateState(id, DownloadState::Failed, err);
@@ -233,7 +233,7 @@ void DownloadManager::startDownload(int id)
     ActiveDownload dl;
     dl.id       = id;
     dl.reply    = reply;
-    dl.file     = std::move(file);
+    dl.file     = file;
     dl.savePath = item.savePath;
     dl.fileName = item.fileName;
     dl.url      = item.url;

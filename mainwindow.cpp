@@ -25,8 +25,8 @@
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QListView>
 #include <QtWidgets/QDialog>
-#include <QtWidgets/QShortcut>
 #include <QtWidgets/QCompleter>
+#include <QtGui/QShortcut>
 #include <QtGui/QAction>
 #include <QtGui/QFont>
 #include <QtGui/QKeySequence>
@@ -37,6 +37,7 @@
 #include <QtWebEngineCore/QWebEngineProfile>
 #include <QtWebEngineCore/QWebEnginePage>
 #include <QtWebEngineWidgets/QWebEngineView>
+#include <QtWebEngineCore/QWebEngineFindTextResult>
 #include <QtPrintSupport/QPrintDialog>
 #include <QtPrintSupport/QPrinter>
 #include <QtCore/QLoggingCategory>
@@ -892,14 +893,12 @@ void MainWindow::toggleFullscreen()
 void MainWindow::printPage()
 {
     auto *tab = m_tabManager->currentTab();
-    if (!tab)
+    if (!tab || !tab->webView())
         return;
 
     QPrinter printer;
     QPrintDialog dialog(&printer, this);
     if (dialog.exec() == QDialog::Accepted) {
-        tab->webView()->page()->print(&printer, [](bool success) {
-            Q_UNUSED(success);
-        });
+        tab->webView()->print(&printer);
     }
 }

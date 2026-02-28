@@ -5,6 +5,7 @@
 #include "downloadmodel.h"
 #include "constants.h"
 
+#include <QtCore/QSharedPointer>
 #include <QtCore/QObject>
 #include <QtCore/QMap>
 #include <QtCore/QTimer>
@@ -52,7 +53,7 @@ private:
     struct ActiveDownload {
         int id                   = 0;
         QNetworkReply *reply     = nullptr;
-        std::unique_ptr<QFile> file;
+        QSharedPointer<QFile> file;
         QString savePath;
         QString fileName;
         QUrl url;

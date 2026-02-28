@@ -4,10 +4,9 @@ TARGET = browser
 QT += widgets network webenginewidgets webchannel printsupport
 
 CONFIG += c++17
-CONFIG += object_parallel_to_source
+# CONFIG += object_parallel_to_source
 
 VERSION = 2.0.0
-DEFINES += APP_VERSION=\\\"$$VERSION\\\"
 
 msvc {
     QMAKE_CXXFLAGS += /W4
