@@ -1,5 +1,5 @@
 #include <QtTest/QTest>
-#include <QtCore/QSignalSpy>
+#include <QtTest/QSignalSpy>
 #include "downloadmodel.h"
 #include "downloaditem.h"
 
