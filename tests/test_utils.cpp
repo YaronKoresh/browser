@@ -37,6 +37,21 @@ private slots:
         QVERIFY(result.startsWith("2.00"));
     }
 
+    void formatBytes_justBelowMegabyte_roundsUpToMb()
+    {
+        QCOMPARE(Utils::formatBytes(1024 * 1024 - 1), QString("1.00 MB"));
+    }
+
+    void formatBytes_justBelowGigabyte_roundsUpToGb()
+    {
+        QCOMPARE(Utils::formatBytes(1024LL * 1024 * 1024 - 1), QString("1.00 GB"));
+    }
+
+    void formatBytes_largestKbValue()
+    {
+        QCOMPARE(Utils::formatBytes(1024 * 1023 + 1000), QString("1023.98 KB"));
+    }
+
     void formatBytes_boundary_kb()
     {
         const QString result = Utils::formatBytes(1024);

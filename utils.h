@@ -11,11 +11,13 @@ namespace Utils {
 {
     using namespace AppConstants;
 
+    constexpr double ROUNDED_UNIT_LIMIT = 1023.995;
+
     if (bytes < BYTES_PER_KB)
         return QString("%1 B").arg(bytes);
-    if (bytes < BYTES_PER_MB)
+    if (static_cast<double>(bytes) / BYTES_PER_KB < ROUNDED_UNIT_LIMIT)
         return QString("%1 KB").arg(static_cast<double>(bytes) / BYTES_PER_KB, 0, 'f', 2);
-    if (bytes < BYTES_PER_GB)
+    if (static_cast<double>(bytes) / BYTES_PER_MB < ROUNDED_UNIT_LIMIT)
         return QString("%1 MB").arg(static_cast<double>(bytes) / BYTES_PER_MB, 0, 'f', 2);
     return QString("%1 GB").arg(static_cast<double>(bytes) / BYTES_PER_GB, 0, 'f', 2);
 }
