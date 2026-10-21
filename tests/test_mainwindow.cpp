@@ -1,7 +1,9 @@
 #include <QtTest/QTest>
+#include <QtCore/QAbstractItemModel>
 #include <QtCore/QSettings>
 #include <QtCore/QStandardPaths>
 #include <QtCore/QTemporaryDir>
+#include <QtWidgets/QCompleter>
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QPushButton>
 #include "mainwindow.h"
@@ -96,6 +98,28 @@ private slots:
         QCOMPARE(tabs->tabAt(0)->navigation()->currentUrl(), QUrl("https://ok.example/"));
 
         SettingsManager::instance().setLastSessionUrls({});
+    }
+
+    void completer_leavesOutUrlsOfPrivateTabs()
+    {
+        MainWindow window;
+        auto *tabs = window.findChild<TabManager *>();
+        QVERIFY(tabs);
+        QVERIFY(QMetaObject::invokeMethod(&window, "createPrivateTab"));
+        QCOMPARE(tabs->count(), 2);
+        auto *priv = tabs->currentTab();
+        QVERIFY(priv->isPrivate());
+        priv->loadUrl(QUrl("https://secret.example/private-page"));
+        QTRY_COMPARE_WITH_TIMEOUT(priv->url(), QUrl("https://secret.example/private-page"), 30000);
+
+        QVERIFY(QMetaObject::invokeMethod(&window, "onTabUrlChanged",
+                                          Q_ARG(QUrl, priv->url())));
+
+        auto *completer = window.findChild<QCompleter *>();
+        QVERIFY(completer);
+        QAbstractItemModel *model = completer->model();
+        for (int row = 0; row < model->rowCount(); ++row)
+            QVERIFY(!model->index(row, 0).data().toString().contains("secret.example"));
     }
 };
 

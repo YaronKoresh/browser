@@ -333,6 +333,8 @@ void MainWindow::updateCompleterModel()
 
     for (int i = 0; i < m_tabManager->count(); ++i) {
         if (auto *tab = m_tabManager->tabAt(i)) {
+            if (tab->isPrivate())
+                continue;
             const QString urlStr = tab->url().toString();
             if (!urlStr.isEmpty() && !suggestions.contains(urlStr))
                 suggestions.append(urlStr);
