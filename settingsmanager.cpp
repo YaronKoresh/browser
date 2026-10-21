@@ -139,6 +139,10 @@ QString SettingsManager::defaultSearchEngine() const
 
 void SettingsManager::setDefaultSearchEngine(const QString &engineUrl)
 {
+    const QUrl parsed(QString(engineUrl).replace("%1", "query"), QUrl::StrictMode);
+    const bool webScheme = parsed.scheme() == "http" || parsed.scheme() == "https";
+    if (!engineUrl.contains("%1") || !parsed.isValid() || !webScheme || parsed.host().isEmpty())
+        return;
     if (defaultSearchEngine() == engineUrl)
         return;
     m_settings->setValue(AppConstants::KEY_SEARCH_ENGINE, engineUrl);

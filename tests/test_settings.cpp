@@ -93,6 +93,32 @@ private slots:
         s.setMaxHistorySize(AppConstants::MAX_HISTORY_SIZE);
     }
 
+    void setSearchEngine_rejectsTemplatesWithoutQueryPlaceholder()
+    {
+        auto &s = SettingsManager::instance();
+        const QString before = s.defaultSearchEngine();
+        QSignalSpy spy(&s, &SettingsManager::searchEngineChanged);
+
+        s.setDefaultSearchEngine("");
+        s.setDefaultSearchEngine("https://example.com/search");
+        s.setDefaultSearchEngine("ftp://example.com/?q=%1");
+        s.setDefaultSearchEngine("not a url %1");
+
+        QCOMPARE(s.defaultSearchEngine(), before);
+        QCOMPARE(spy.count(), 0);
+    }
+
+    void setSearchEngine_acceptsValidTemplate()
+    {
+        auto &s = SettingsManager::instance();
+        const QString before = s.defaultSearchEngine();
+
+        s.setDefaultSearchEngine("https://duckduckgo.com/?q=%1");
+        QCOMPARE(s.defaultSearchEngine(), QString("https://duckduckgo.com/?q=%1"));
+
+        s.setDefaultSearchEngine(before);
+    }
+
     void setZoomFactor_clamped()
     {
         auto &s = SettingsManager::instance();
