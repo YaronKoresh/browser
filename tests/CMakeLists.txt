@@ -37,3 +37,12 @@ target_compile_definitions(test_constants PRIVATE
     EXPECTED_VERSION="${PROJECT_VERSION}"
 )
 add_test(NAME ConstantsTest COMMAND test_constants)
+
+add_executable(test_downloadmanager
+    test_downloadmanager.cpp
+    ${CMAKE_SOURCE_DIR}/downloadmanager.cpp
+    ${CMAKE_SOURCE_DIR}/downloadmodel.cpp
+)
+target_link_libraries(test_downloadmanager PRIVATE Qt6::Test Qt6::Core Qt6::Network)
+target_include_directories(test_downloadmanager PRIVATE ${CMAKE_SOURCE_DIR})
+add_test(NAME DownloadManagerTest COMMAND test_downloadmanager)

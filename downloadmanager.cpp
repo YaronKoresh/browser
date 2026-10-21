@@ -51,16 +51,21 @@ int DownloadManager::enqueueDownload(const QUrl &url, const QString &savePath,
 
 void DownloadManager::cancelDownload(int id)
 {
-    m_queue.removeAll(id);
-
     if (auto *dl = findById(id)) {
+        m_queue.removeAll(id);
         if (dl->reply) {
             dl->reply->abort();
         }
-    } else {
-        m_model->updateState(id, DownloadState::Cancelled);
-        emit downloadCancelled(id);
+        return;
     }
+
+    const DownloadItem item = m_model->findById(id);
+    if (item.id == 0 || item.state != DownloadState::Queued)
+        return;
+
+    m_queue.removeAll(id);
+    m_model->updateState(id, DownloadState::Cancelled);
+    emit downloadCancelled(id);
 }
 
 void DownloadManager::retryDownload(int id)
