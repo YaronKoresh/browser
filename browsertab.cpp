@@ -45,6 +45,18 @@ BrowserTab::BrowserTab(QWidget *parent)
 
     connect(m_webView, &QWebEngineView::urlChanged,
             this, &BrowserTab::onUrlChanged);
+
+    connect(this, &BrowserTab::loadStarted, this, [this]() {
+        m_loading = true;
+        m_loadingProgress = 0;
+    });
+    connect(this, &BrowserTab::loadProgress, this, [this](int progress) {
+        m_loadingProgress = progress;
+    });
+    connect(this, &BrowserTab::loadFinished, this, [this](bool) {
+        m_loading = false;
+        m_loadingProgress = 0;
+    });
 }
 
 BrowserTab::~BrowserTab() = default;
@@ -65,6 +77,16 @@ QUrl BrowserTab::url() const
 double BrowserTab::zoomFactor() const
 {
     return m_webView->zoomFactor();
+}
+
+bool BrowserTab::isLoading() const
+{
+    return m_loading;
+}
+
+int BrowserTab::loadingProgress() const
+{
+    return m_loadingProgress;
 }
 
 void BrowserTab::setPage(QWebEnginePage *page)

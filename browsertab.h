@@ -22,6 +22,8 @@ public:
     [[nodiscard]] QString title() const;
     [[nodiscard]] QUrl url() const;
     [[nodiscard]] double zoomFactor() const;
+    [[nodiscard]] bool isLoading() const;
+    [[nodiscard]] int loadingProgress() const;
 
     void setPage(QWebEnginePage *page);
 
@@ -52,6 +54,8 @@ private:
     QWebEngineView     *m_webView    = nullptr;
     NavigationManager  *m_navigation = nullptr;
     bool                m_private    = false;
+    bool                m_loading    = false;
+    int                 m_loadingProgress = 0;
 };
 
 #endif // BROWSERTAB_H

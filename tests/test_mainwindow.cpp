@@ -6,6 +6,8 @@
 #include <QtGui/QDesktopServices>
 #include <QtWidgets/QCompleter>
 #include <QtWidgets/QLineEdit>
+#include <QtWidgets/QProgressBar>
+#include <QtWidgets/QStatusBar>
 #include <QtWidgets/QPushButton>
 #include "mainwindow.h"
 #include "bookmarkmanager.h"
@@ -210,6 +212,38 @@ private slots:
         auto *normal = tabs->tabAt(0);
         emit normal->titleChanged("Example Domain");
         QCOMPARE(tabs->tabText(0), QString("Example Domain"));
+    }
+
+    void progressBar_followsTheSelectedTab()
+    {
+        MainWindow window;
+        auto *tabs = window.findChild<TabManager *>();
+        auto *bar = window.findChild<QProgressBar *>();
+        QVERIFY(tabs);
+        QVERIFY(bar);
+
+        auto *first = tabs->currentTab();
+        emit first->loadStarted();
+        emit first->loadProgress(40);
+        QVERIFY(!bar->isHidden());
+        QCOMPARE(bar->value(), 40);
+
+        tabs->createTab();
+        QCOMPARE(tabs->count(), 2);
+        QVERIFY(tabs->currentTab() != first);
+        QVERIFY(bar->isHidden());
+
+        tabs->setCurrentIndex(0);
+        QVERIFY(!bar->isHidden());
+        QCOMPARE(bar->value(), 40);
+
+        emit first->loadFinished(true);
+        QVERIFY(bar->isHidden());
+
+        emit first->loadStarted();
+        QCOMPARE(window.statusBar()->currentMessage(), QString("Loading..."));
+        tabs->setCurrentIndex(1);
+        QVERIFY(window.statusBar()->currentMessage().isEmpty());
     }
 };
 

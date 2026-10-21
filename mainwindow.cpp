@@ -501,6 +501,7 @@ void MainWindow::onForwardClicked()
 
 void MainWindow::onCurrentTabChanged(BrowserTab *tab)
 {
+    statusBar()->clearMessage();
     disconnectCurrentTab();
     connectCurrentTab(tab);
 
@@ -511,9 +512,11 @@ void MainWindow::onCurrentTabChanged(BrowserTab *tab)
                            ? AppConstants::APP_NAME
                            : QString("%1 - %2").arg(title, AppConstants::APP_NAME));
         updateNavigationButtons();
-
         updateBookmarkStar();
+        m_progressBar->setValue(tab->loadingProgress());
+        m_progressBar->setVisible(tab->isLoading());
     } else {
+        m_progressBar->setVisible(false);
         m_addressBar->clear();
         setWindowTitle(AppConstants::APP_NAME);
         m_backButton->setEnabled(false);
