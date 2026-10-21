@@ -260,6 +260,7 @@ void DownloadManager::startDownload(int id)
         return;
     }
 
+    QDir().mkpath(QFileInfo(item.savePath).absolutePath());
     auto file = QSharedPointer<QFile>::create(item.savePath);
     if (!file->open(QIODevice::WriteOnly)) {
         const QString err = QString("Could not open file for writing: %1").arg(item.savePath);

@@ -1,5 +1,6 @@
 #include <QtTest/QTest>
 #include <QtTest/QSignalSpy>
+#include <QtCore/QDir>
 #include <QtCore/QFile>
 #include <QtCore/QTemporaryDir>
 #include "downloadmanager.h"
@@ -159,6 +160,34 @@ private slots:
         QVERIFY(cancelled.count() >= 2);
         QTRY_VERIFY(!mgr.hasActiveDownloads());
         Q_UNUSED(a);
+    }
+
+    void save_missingFolderIsCreated()
+    {
+        DownloadManager mgr;
+        const QString src = writeSource("nested.src", "payload");
+        const QString out = m_dir.filePath("new/deeper/nested.out");
+        QSignalSpy completed(&mgr, &DownloadManager::downloadCompleted);
+        QSignalSpy failed(&mgr, &DownloadManager::downloadFailed);
+        const int id = mgr.enqueueDownload(QUrl::fromLocalFile(src), out, "nested");
+        QTRY_VERIFY_WITH_TIMEOUT(completed.count() + failed.count() == 1, 5000);
+        QCOMPARE(failed.count(), 0);
+        QCOMPARE(mgr.model()->findById(id).state, DownloadState::Completed);
+        QFile f(out);
+        QVERIFY(f.open(QIODevice::ReadOnly));
+        QCOMPARE(f.readAll(), QByteArray("payload"));
+    }
+
+    void save_pathThatIsAFolderFailsWithClearMessage()
+    {
+        DownloadManager mgr;
+        const QString src = writeSource("dirtarget.src", "payload");
+        const QString dir = m_dir.filePath("existing-folder");
+        QVERIFY(QDir().mkpath(dir));
+        QSignalSpy failed(&mgr, &DownloadManager::downloadFailed);
+        mgr.enqueueDownload(QUrl::fromLocalFile(src), dir, "dirtarget");
+        QCOMPARE(failed.count(), 1);
+        QVERIFY(failed.first().at(1).toString().contains(dir));
     }
 
     void samePath_secondDownloadWaitsAndFileHoldsOnlyItsContent()
