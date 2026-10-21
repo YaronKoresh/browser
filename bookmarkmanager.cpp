@@ -77,11 +77,11 @@ void BookmarkManager::save() const
 bool BookmarkManager::addBookmark(const QString &title, const QUrl &url,
                                    const QString &folder)
 {
-    if (isBookmarked(url))
+    if (url.isEmpty() || !url.isValid() || isBookmarked(url))
         return false;
 
     Bookmark bm;
-    bm.title  = title;
+    bm.title  = title.trimmed().isEmpty() ? url.toString() : title;
     bm.url    = url;
     bm.folder = folder;
     m_bookmarks.append(bm);

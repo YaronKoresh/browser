@@ -46,3 +46,11 @@ add_executable(test_downloadmanager
 target_link_libraries(test_downloadmanager PRIVATE Qt6::Test Qt6::Core Qt6::Network)
 target_include_directories(test_downloadmanager PRIVATE ${CMAKE_SOURCE_DIR})
 add_test(NAME DownloadManagerTest COMMAND test_downloadmanager)
+
+add_executable(test_bookmarks
+    test_bookmarks.cpp
+    ${CMAKE_SOURCE_DIR}/bookmarkmanager.cpp
+)
+target_link_libraries(test_bookmarks PRIVATE Qt6::Test Qt6::Core)
+target_include_directories(test_bookmarks PRIVATE ${CMAKE_SOURCE_DIR})
+add_test(NAME BookmarksTest COMMAND test_bookmarks)
