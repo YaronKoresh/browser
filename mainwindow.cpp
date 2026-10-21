@@ -675,7 +675,7 @@ void MainWindow::createPrivateTab()
     if (tab) {
         auto *offTheRecordProfile = new QWebEngineProfile(tab);
         auto *page = new QWebEnginePage(offTheRecordProfile, tab->webView());
-        tab->webView()->setPage(page);
+        tab->setPage(page);
 
         connect(offTheRecordProfile, &QWebEngineProfile::downloadRequested,
                 this, &MainWindow::onDownloadRequested);

@@ -3,6 +3,8 @@
 #include <QtCore/QTemporaryDir>
 #include <QtWebEngineWidgets/QWebEngineView>
 #include <QtWebEngineCore/QWebEngineSettings>
+#include <QtWebEngineCore/QWebEnginePage>
+#include <QtWebEngineCore/QWebEngineProfile>
 #include "browsertab.h"
 #include "settingsmanager.h"
 #include "navigationmanager.h"
@@ -41,6 +43,22 @@ private slots:
             QWebEngineSettings::JavascriptEnabled));
 
         s.setJavascriptEnabled(false);
+        QVERIFY(!tab.webView()->settings()->testAttribute(
+            QWebEngineSettings::JavascriptEnabled));
+
+        s.setJavascriptEnabled(true);
+        QVERIFY(tab.webView()->settings()->testAttribute(
+            QWebEngineSettings::JavascriptEnabled));
+    }
+
+    void javascript_disabledSettingIsAppliedToReplacedPage()
+    {
+        auto &s = SettingsManager::instance();
+        s.setJavascriptEnabled(false);
+
+        BrowserTab tab;
+        auto *profile = new QWebEngineProfile(&tab);
+        tab.setPage(new QWebEnginePage(profile, tab.webView()));
         QVERIFY(!tab.webView()->settings()->testAttribute(
             QWebEngineSettings::JavascriptEnabled));
 

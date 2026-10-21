@@ -63,6 +63,12 @@ double BrowserTab::zoomFactor() const
     return m_webView->zoomFactor();
 }
 
+void BrowserTab::setPage(QWebEnginePage *page)
+{
+    m_webView->setPage(page);
+    applyJavascriptSetting(SettingsManager::instance().javascriptEnabled());
+}
+
 void BrowserTab::loadUrl(const QUrl &url)
 {
     m_navigation->navigateTo(url);

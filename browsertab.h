@@ -6,6 +6,7 @@
 #include <memory>
 
 class QWebEngineView;
+class QWebEnginePage;
 class QVBoxLayout;
 class NavigationManager;
 
@@ -21,6 +22,8 @@ public:
     [[nodiscard]] QString title() const;
     [[nodiscard]] QUrl url() const;
     [[nodiscard]] double zoomFactor() const;
+
+    void setPage(QWebEnginePage *page);
 
 public slots:
     void loadUrl(const QUrl &url);
