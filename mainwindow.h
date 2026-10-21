@@ -60,6 +60,7 @@ private slots:
 
     void toggleBookmark();
     void showBookmarkManager();
+    void openBookmark(const QUrl &url);
     void onBookmarksChanged();
 
     void toggleFindBar();

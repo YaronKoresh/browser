@@ -245,6 +245,19 @@ private slots:
         tabs->setCurrentIndex(1);
         QVERIFY(window.statusBar()->currentMessage().isEmpty());
     }
+
+    void bookmarks_openLoadsTheStoredAddressAsIs()
+    {
+        MainWindow window;
+        auto *tabs = window.findChild<TabManager *>();
+        QVERIFY(tabs);
+
+        const QUrl stored("devtools://devtools/bundled/inspector.html");
+        QVERIFY(QMetaObject::invokeMethod(&window, "openBookmark", Q_ARG(QUrl, stored)));
+
+        QCOMPARE(tabs->count(), 1);
+        QCOMPARE(tabs->currentTab()->navigation()->currentUrl(), stored);
+    }
 };
 
 QTEST_MAIN(TestMainWindow)

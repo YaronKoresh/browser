@@ -786,8 +786,19 @@ void MainWindow::showBookmarkManager()
 {
     BookmarksDialog dialog(m_bookmarkManager, this);
     connect(&dialog, &BookmarksDialog::openRequested, this,
-            [this](const QUrl &url) { navigateToInput(url.toString()); });
+            [this](const QUrl &url) { openBookmark(url); });
     dialog.exec();
+}
+
+void MainWindow::openBookmark(const QUrl &url)
+{
+    if (!url.isValid() || url.isEmpty())
+        return;
+
+    auto *tab = m_tabManager->currentTab();
+    if (!tab)
+        tab = m_tabManager->createTab();
+    tab->loadUrl(url);
 }
 
 void MainWindow::onBookmarksChanged()
