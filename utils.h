@@ -30,6 +30,15 @@ namespace Utils {
         return false;
     if (input.startsWith("http://") || input.startsWith("https://") || input.startsWith("file://"))
         return true;
+    static const char *const kSchemes[] = {
+        "ftp://", "ftps://", "about:", "view-source:", "data:", "blob:", "qrc:", "chrome://"
+    };
+    for (const char *scheme : kSchemes) {
+        if (input.startsWith(QLatin1String(scheme), Qt::CaseInsensitive))
+            return true;
+    }
+    if (input.startsWith('[') && input.contains("]"))
+        return true;
     QString host = input.left(input.indexOf(QRegularExpression("[/?#]")));
     if (host.endsWith('.'))
         host.chop(1);

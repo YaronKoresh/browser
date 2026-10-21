@@ -110,6 +110,17 @@ private slots:
         QVERIFY(Utils::looksLikeUrl("example.com?q=a.b"));
     }
 
+    void looksLikeUrl_otherSchemes()
+    {
+        QVERIFY(Utils::looksLikeUrl("about:blank"));
+        QVERIFY(Utils::looksLikeUrl("view-source:https://example.com"));
+        QVERIFY(Utils::looksLikeUrl("ftp://files.example"));
+        QVERIFY(Utils::looksLikeUrl("data:text/plain,hello"));
+        QVERIFY(Utils::looksLikeUrl("[::1]:8080"));
+        QVERIFY(!Utils::looksLikeUrl("note:buy"));
+        QVERIFY(!Utils::looksLikeUrl("c:"));
+    }
+
     void looksLikeUrl_emptyString()
     {
         QVERIFY(!Utils::looksLikeUrl(""));
