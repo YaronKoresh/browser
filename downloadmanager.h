@@ -65,6 +65,7 @@ private:
     };
 
     void startDownload(int id);
+    [[nodiscard]] bool isSavePathActive(const QString &savePath) const;
     bool writeChunk(ActiveDownload &dl, const QByteArray &data);
     ActiveDownload *findByReply(QNetworkReply *reply);
     ActiveDownload *findById(int id);

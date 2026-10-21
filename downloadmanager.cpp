@@ -6,6 +6,7 @@
 #include <QtNetwork/QNetworkReply>
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
+#include <QtCore/QDir>
 #include <QtCore/QLoggingCategory>
 
 Q_LOGGING_CATEGORY(lcDownload, "browser.download")
@@ -119,8 +120,17 @@ bool DownloadManager::hasActiveDownloads() const
 
 void DownloadManager::processQueue()
 {
-    while (m_active.size() < m_maxConcurrent && !m_queue.isEmpty()) {
-        const int id = m_queue.takeFirst();
+    while (m_active.size() < m_maxConcurrent) {
+        int pos = -1;
+        for (int i = 0; i < m_queue.size(); ++i) {
+            if (!isSavePathActive(m_model->findById(m_queue[i]).savePath)) {
+                pos = i;
+                break;
+            }
+        }
+        if (pos < 0)
+            break;
+        const int id = m_queue.takeAt(pos);
         startDownload(id);
     }
 
@@ -279,6 +289,16 @@ void DownloadManager::startDownload(int id)
 
     qCInfo(lcDownload) << "Started download" << id << item.fileName;
     emit downloadStarted(id);
+}
+
+bool DownloadManager::isSavePathActive(const QString &savePath) const
+{
+    const QString wanted = QDir::cleanPath(QFileInfo(savePath).absoluteFilePath());
+    for (auto it = m_active.cbegin(); it != m_active.cend(); ++it) {
+        if (QDir::cleanPath(QFileInfo(it->savePath).absoluteFilePath()) == wanted)
+            return true;
+    }
+    return false;
 }
 
 bool DownloadManager::writeChunk(ActiveDownload &dl, const QByteArray &data)

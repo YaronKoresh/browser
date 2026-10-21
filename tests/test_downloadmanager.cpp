@@ -161,6 +161,55 @@ private slots:
         Q_UNUSED(a);
     }
 
+    void samePath_secondDownloadWaitsAndFileHoldsOnlyItsContent()
+    {
+        DownloadManager mgr;
+        const QString first = writeSource("first.bin", QByteArray(3000000, 'a'));
+        const QString second = writeSource("second.bin", QByteArray(1000000, 'b'));
+        const QString out = m_dir.filePath("shared.out");
+        QSignalSpy started(&mgr, &DownloadManager::downloadStarted);
+        QSignalSpy completed(&mgr, &DownloadManager::downloadCompleted);
+        const int id1 = mgr.enqueueDownload(QUrl::fromLocalFile(first), out, "shared");
+        const int id2 = mgr.enqueueDownload(QUrl::fromLocalFile(second), out, "shared");
+        QCOMPARE(mgr.activeDownloadCount(), 1);
+        QCOMPARE(mgr.model()->findById(id2).state, DownloadState::Queued);
+        QTRY_VERIFY_WITH_TIMEOUT(completed.count() == 2, 10000);
+        QCOMPARE(mgr.model()->findById(id1).state, DownloadState::Completed);
+        QCOMPARE(mgr.model()->findById(id2).state, DownloadState::Completed);
+        QFile f(out);
+        QVERIFY(f.open(QIODevice::ReadOnly));
+        QCOMPARE(f.readAll(), QByteArray(1000000, 'b'));
+    }
+
+    void samePath_otherPathsStillRunTogether()
+    {
+        DownloadManager mgr;
+        const QString src = writeSource("par.bin", QByteArray(2000000, 'c'));
+        const int id1 = mgr.enqueueDownload(QUrl::fromLocalFile(src), m_dir.filePath("p1.out"), "p1");
+        const int id2 = mgr.enqueueDownload(QUrl::fromLocalFile(src), m_dir.filePath("p2.out"), "p2");
+        QCOMPARE(mgr.activeDownloadCount(), 2);
+        QSignalSpy completed(&mgr, &DownloadManager::downloadCompleted);
+        QTRY_VERIFY_WITH_TIMEOUT(completed.count() == 2, 10000);
+        QCOMPARE(mgr.model()->findById(id1).state, DownloadState::Completed);
+        QCOMPARE(mgr.model()->findById(id2).state, DownloadState::Completed);
+    }
+
+    void samePath_cancelWaitingDownloadKeepsFirstRunning()
+    {
+        DownloadManager mgr;
+        const QString first = writeSource("c1.bin", QByteArray(2000000, 'a'));
+        const QString second = writeSource("c2.bin", "x");
+        const QString out = m_dir.filePath("cancel.out");
+        const int id1 = mgr.enqueueDownload(QUrl::fromLocalFile(first), out, "cancel");
+        const int id2 = mgr.enqueueDownload(QUrl::fromLocalFile(second), out, "cancel");
+        mgr.cancelDownload(id2);
+        QCOMPARE(mgr.model()->findById(id2).state, DownloadState::Cancelled);
+        QSignalSpy completed(&mgr, &DownloadManager::downloadCompleted);
+        QTRY_VERIFY_WITH_TIMEOUT(completed.count() == 1, 10000);
+        QCOMPARE(mgr.model()->findById(id1).state, DownloadState::Completed);
+        QCOMPARE(QFileInfo(out).size(), qint64(2000000));
+    }
+
 #ifdef Q_OS_UNIX
     void write_failureMarksDownloadFailed()
     {
