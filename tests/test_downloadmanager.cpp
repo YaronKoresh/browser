@@ -99,6 +99,26 @@ private slots:
         mgr.cancelDownload(second);
         QCOMPARE(cancelled.count(), 0);
     }
+
+    void cancelAll_queuedDownloadsAreMarkedCancelled()
+    {
+        DownloadManager mgr;
+        mgr.setMaxConcurrentDownloads(1);
+        const QString src = writeSource("all.txt", "payload");
+        const int a = mgr.enqueueDownload(QUrl::fromLocalFile(src), m_dir.filePath("all1.out"), "all1");
+        const int b = mgr.enqueueDownload(QUrl::fromLocalFile(src), m_dir.filePath("all2.out"), "all2");
+        const int c = mgr.enqueueDownload(QUrl::fromLocalFile(src), m_dir.filePath("all3.out"), "all3");
+        QCOMPARE(mgr.model()->findById(b).state, DownloadState::Queued);
+
+        QSignalSpy cancelled(&mgr, &DownloadManager::downloadCancelled);
+        mgr.cancelAll();
+
+        QCOMPARE(mgr.model()->findById(b).state, DownloadState::Cancelled);
+        QCOMPARE(mgr.model()->findById(c).state, DownloadState::Cancelled);
+        QVERIFY(cancelled.count() >= 2);
+        QTRY_VERIFY(!mgr.hasActiveDownloads());
+        Q_UNUSED(a);
+    }
 };
 
 QTEST_MAIN(TestDownloadManager)

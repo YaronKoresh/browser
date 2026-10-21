@@ -88,7 +88,13 @@ void DownloadManager::retryDownload(int id)
 
 void DownloadManager::cancelAll()
 {
+    const QVector<int> queued = m_queue;
     m_queue.clear();
+
+    for (int id : queued) {
+        m_model->updateState(id, DownloadState::Cancelled);
+        emit downloadCancelled(id);
+    }
 
     const auto ids = m_active.keys();
     for (int id : ids)
