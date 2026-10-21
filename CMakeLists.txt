@@ -29,6 +29,7 @@ set(HEADERS
     downloadmanager.h
     settingsmanager.h
     bookmarkmanager.h
+    bookmarksdialog.h
     thememanager.h
     browsertab.h
     tabmanager.h
@@ -45,6 +46,7 @@ set(SOURCES
     downloadmanager.cpp
     settingsmanager.cpp
     bookmarkmanager.cpp
+    bookmarksdialog.cpp
     thememanager.cpp
     browsertab.cpp
     tabmanager.cpp

@@ -70,3 +70,16 @@ if(TARGET Qt6::WebEngineWidgets AND TARGET Qt6::Widgets)
     set_tests_properties(BrowserTabTest PROPERTIES
         ENVIRONMENT "QT_QPA_PLATFORM=offscreen;QTWEBENGINE_CHROMIUM_FLAGS=--no-sandbox --disable-gpu")
 endif()
+
+find_package(Qt6 QUIET COMPONENTS Widgets)
+if(TARGET Qt6::Widgets)
+    add_executable(test_bookmarksdialog
+        test_bookmarksdialog.cpp
+        ${CMAKE_SOURCE_DIR}/bookmarksdialog.cpp
+        ${CMAKE_SOURCE_DIR}/bookmarkmanager.cpp
+    )
+    target_link_libraries(test_bookmarksdialog PRIVATE Qt6::Test Qt6::Core Qt6::Widgets)
+    target_include_directories(test_bookmarksdialog PRIVATE ${CMAKE_SOURCE_DIR})
+    add_test(NAME BookmarksDialogTest COMMAND test_bookmarksdialog)
+    set_tests_properties(BookmarksDialogTest PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
+endif()

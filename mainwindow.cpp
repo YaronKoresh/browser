@@ -8,6 +8,7 @@
 #include "navigationmanager.h"
 #include "downloadmanager.h"
 #include "bookmarkmanager.h"
+#include "bookmarksdialog.h"
 #include "downloaddialog.h"
 #include "preferencesdialog.h"
 #include "findbar.h"
@@ -762,51 +763,10 @@ void MainWindow::toggleBookmark()
 
 void MainWindow::showBookmarkManager()
 {
-    auto *dialog = new QDialog(this);
-    dialog->setWindowTitle(tr("Bookmarks"));
-    dialog->setMinimumSize(400, 350);
-
-    auto *layout = new QVBoxLayout(dialog);
-    auto *listView = new QListView(dialog);
-
-    QStringList displayItems;
-    const auto allBookmarks = m_bookmarkManager->bookmarks();
-    for (const auto &bm : allBookmarks)
-        displayItems.append(QString("%1 — %2").arg(bm.title, bm.url.toString()));
-
-    auto *model = new QStringListModel(displayItems, dialog);
-    listView->setModel(model);
-    layout->addWidget(listView);
-
-    auto *buttonLayout = new QHBoxLayout;
-    auto *openBtn = new QPushButton(tr("Open"), dialog);
-    auto *deleteBtn = new QPushButton(tr("Delete"), dialog);
-    auto *closeBtn = new QPushButton(tr("Close"), dialog);
-    buttonLayout->addWidget(openBtn);
-    buttonLayout->addWidget(deleteBtn);
-    buttonLayout->addStretch();
-    buttonLayout->addWidget(closeBtn);
-    layout->addLayout(buttonLayout);
-
-    connect(openBtn, &QPushButton::clicked, dialog, [this, listView, &allBookmarks, dialog]() {
-        const int row = listView->currentIndex().row();
-        if (row >= 0 && row < allBookmarks.size()) {
-            navigateToInput(allBookmarks[row].url.toString());
-            dialog->accept();
-        }
-    });
-
-    connect(deleteBtn, &QPushButton::clicked, dialog, [this, listView, &allBookmarks]() {
-        const int row = listView->currentIndex().row();
-        if (row >= 0 && row < allBookmarks.size()) {
-            m_bookmarkManager->removeBookmark(allBookmarks[row].url);
-        }
-    });
-
-    connect(closeBtn, &QPushButton::clicked, dialog, &QDialog::accept);
-
-    dialog->setAttribute(Qt::WA_DeleteOnClose);
-    dialog->exec();
+    BookmarksDialog dialog(m_bookmarkManager, this);
+    connect(&dialog, &BookmarksDialog::openRequested, this,
+            [this](const QUrl &url) { navigateToInput(url.toString()); });
+    dialog.exec();
 }
 
 void MainWindow::onBookmarksChanged()
