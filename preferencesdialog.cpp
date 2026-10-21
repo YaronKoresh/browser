@@ -124,7 +124,7 @@ void PreferencesDialog::applySettings()
 {
     auto &s = SettingsManager::instance();
 
-    s.setHomePage(QUrl(m_homePageEdit->text().trimmed()));
+    s.setHomePage(QUrl::fromUserInput(m_homePageEdit->text().trimmed()));
     s.setDefaultDownloadDirectory(m_downloadDirEdit->text().trimmed());
     s.setMaxConcurrentDownloads(m_maxConcurrentSpin->value());
     s.setJavascriptEnabled(m_jsEnabledCheck->isChecked());

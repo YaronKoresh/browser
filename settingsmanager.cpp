@@ -18,14 +18,33 @@ SettingsManager::SettingsManager()
 {
 }
 
+namespace {
+
+bool isUsableHomePage(const QUrl &url)
+{
+    if (!url.isValid() || url.isEmpty())
+        return false;
+    const QString scheme = url.scheme();
+    if (scheme == "http" || scheme == "https")
+        return !url.host().isEmpty();
+    if (scheme == "file")
+        return !url.path().isEmpty();
+    return url == QUrl("about:blank");
+}
+
+}
+
 QUrl SettingsManager::homePage() const
 {
-    return QUrl(m_settings->value(AppConstants::KEY_HOME_PAGE,
-                                  AppConstants::DEFAULT_HOME_URL).toString());
+    const QUrl stored(m_settings->value(AppConstants::KEY_HOME_PAGE,
+                                        AppConstants::DEFAULT_HOME_URL).toString());
+    return isUsableHomePage(stored) ? stored : QUrl(AppConstants::DEFAULT_HOME_URL);
 }
 
 void SettingsManager::setHomePage(const QUrl &url)
 {
+    if (!isUsableHomePage(url))
+        return;
     if (homePage() == url)
         return;
     m_settings->setValue(AppConstants::KEY_HOME_PAGE, url.toString());

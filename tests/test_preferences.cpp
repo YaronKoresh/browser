@@ -3,6 +3,7 @@
 #include <QtCore/QTemporaryDir>
 #include <QtWidgets/QComboBox>
 #include <QtWidgets/QDialogButtonBox>
+#include <QtWidgets/QLineEdit>
 #include <QtWidgets/QPushButton>
 #include "preferencesdialog.h"
 #include "settingsmanager.h"
@@ -26,6 +27,37 @@ private slots:
     void initTestCase()
     {
         QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, m_configDir.path());
+    }
+
+    void homePage_bareHostIsSavedAsWebAddress()
+    {
+        auto &s = SettingsManager::instance();
+        const QUrl before = s.homePage();
+        PreferencesDialog dialog;
+        for (auto *edit : dialog.findChildren<QLineEdit *>()) {
+            if (edit->text() == before.toString())
+                edit->setText("  example.org/start  ");
+        }
+        auto *box = dialog.findChild<QDialogButtonBox *>();
+        QVERIFY(box);
+        box->button(QDialogButtonBox::Ok)->click();
+        QCOMPARE(s.homePage(), QUrl("http://example.org/start"));
+        s.setHomePage(before);
+    }
+
+    void homePage_emptyInputKeepsCurrentHomePage()
+    {
+        auto &s = SettingsManager::instance();
+        s.setHomePage(QUrl("https://kept.example/"));
+        PreferencesDialog dialog;
+        for (auto *edit : dialog.findChildren<QLineEdit *>()) {
+            if (edit->text() == "https://kept.example/")
+                edit->setText("   ");
+        }
+        auto *box = dialog.findChild<QDialogButtonBox *>();
+        box->button(QDialogButtonBox::Ok)->click();
+        QCOMPARE(s.homePage(), QUrl("https://kept.example/"));
+        s.setHomePage(QUrl(AppConstants::DEFAULT_HOME_URL));
     }
 
     void theme_savedChoiceIsShown()

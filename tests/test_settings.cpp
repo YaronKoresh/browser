@@ -75,6 +75,36 @@ private slots:
         QCOMPARE(spy.count(), 0);
     }
 
+    void setHomePage_rejectsEmptyOrRelativeUrls()
+    {
+        auto &s = SettingsManager::instance();
+        const QUrl before = s.homePage();
+        QSignalSpy spy(&s, &SettingsManager::homePageChanged);
+
+        s.setHomePage(QUrl());
+        s.setHomePage(QUrl("not a url"));
+        s.setHomePage(QUrl("example.com"));
+        s.setHomePage(QUrl("javascript:alert(1)"));
+
+        QCOMPARE(s.homePage(), before);
+        QCOMPARE(spy.count(), 0);
+    }
+
+    void setHomePage_acceptsWebAndLocalUrls()
+    {
+        auto &s = SettingsManager::instance();
+        const QUrl before = s.homePage();
+
+        s.setHomePage(QUrl("http://example.com/"));
+        QCOMPARE(s.homePage(), QUrl("http://example.com/"));
+        s.setHomePage(QUrl("file:///tmp/start.html"));
+        QCOMPARE(s.homePage(), QUrl("file:///tmp/start.html"));
+        s.setHomePage(QUrl("about:blank"));
+        QCOMPARE(s.homePage(), QUrl("about:blank"));
+
+        s.setHomePage(before);
+    }
+
     void setMaxConcurrent_clampedToMin()
     {
         auto &s = SettingsManager::instance();
