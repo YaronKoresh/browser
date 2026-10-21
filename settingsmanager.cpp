@@ -166,6 +166,26 @@ void SettingsManager::setZoomFactor(double factor)
     emit settingChanged(AppConstants::KEY_ZOOM_FACTOR);
 }
 
+QString SettingsManager::theme() const
+{
+    const QString name = m_settings->value(AppConstants::KEY_THEME,
+                                           AppConstants::DEFAULT_THEME).toString();
+    if (name == "light" || name == "dark")
+        return name;
+    return AppConstants::DEFAULT_THEME;
+}
+
+void SettingsManager::setTheme(const QString &name)
+{
+    if (name != "system" && name != "light" && name != "dark")
+        return;
+    if (theme() == name)
+        return;
+    m_settings->setValue(AppConstants::KEY_THEME, name);
+    emit themeChanged(name);
+    emit settingChanged(AppConstants::KEY_THEME);
+}
+
 QStringList SettingsManager::lastSessionUrls() const
 {
     return m_settings->value(AppConstants::KEY_LAST_SESSION_URLS).toStringList();

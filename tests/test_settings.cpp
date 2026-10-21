@@ -141,6 +141,46 @@ private slots:
         s.setLastSessionUrls({});
     }
 
+    void defaults_theme()
+    {
+        auto &s = SettingsManager::instance();
+        QCOMPARE(s.theme(), QString(AppConstants::DEFAULT_THEME));
+    }
+
+    void setTheme_roundTripAndSignal()
+    {
+        auto &s = SettingsManager::instance();
+        QSignalSpy spy(&s, &SettingsManager::themeChanged);
+
+        s.setTheme("dark");
+        QCOMPARE(s.theme(), QString("dark"));
+        QCOMPARE(spy.count(), 1);
+        QCOMPARE(spy.first().first().toString(), QString("dark"));
+
+        s.setTheme("dark");
+        QCOMPARE(spy.count(), 1);
+
+        s.setTheme("light");
+        QCOMPARE(s.theme(), QString("light"));
+
+        s.setTheme("system");
+        QCOMPARE(s.theme(), QString("system"));
+    }
+
+    void setTheme_rejectsUnknownName()
+    {
+        auto &s = SettingsManager::instance();
+        s.setTheme("light");
+        QSignalSpy spy(&s, &SettingsManager::themeChanged);
+
+        s.setTheme("purple");
+        s.setTheme("");
+        QCOMPARE(s.theme(), QString("light"));
+        QCOMPARE(spy.count(), 0);
+
+        s.setTheme("system");
+    }
+
     void settingChanged_emitted()
     {
         auto &s = SettingsManager::instance();

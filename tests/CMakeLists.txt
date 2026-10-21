@@ -83,3 +83,25 @@ if(TARGET Qt6::Widgets)
     add_test(NAME BookmarksDialogTest COMMAND test_bookmarksdialog)
     set_tests_properties(BookmarksDialogTest PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
 endif()
+
+if(TARGET Qt6::Widgets)
+    add_executable(test_thememanager
+        test_thememanager.cpp
+        ${CMAKE_SOURCE_DIR}/thememanager.cpp
+        ${CMAKE_SOURCE_DIR}/settingsmanager.cpp
+    )
+    target_link_libraries(test_thememanager PRIVATE Qt6::Test Qt6::Core Qt6::Widgets)
+    target_include_directories(test_thememanager PRIVATE ${CMAKE_SOURCE_DIR})
+    add_test(NAME ThemeManagerTest COMMAND test_thememanager)
+    set_tests_properties(ThemeManagerTest PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
+
+    add_executable(test_preferences
+        test_preferences.cpp
+        ${CMAKE_SOURCE_DIR}/preferencesdialog.cpp
+        ${CMAKE_SOURCE_DIR}/settingsmanager.cpp
+    )
+    target_link_libraries(test_preferences PRIVATE Qt6::Test Qt6::Core Qt6::Widgets)
+    target_include_directories(test_preferences PRIVATE ${CMAKE_SOURCE_DIR})
+    add_test(NAME PreferencesTest COMMAND test_preferences)
+    set_tests_properties(PreferencesTest PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
+endif()

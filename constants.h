@@ -19,6 +19,7 @@ constexpr const char *APP_VERSION         = BROWSER_VERSION_TEXT;
 
 constexpr const char *DEFAULT_HOME_URL    = "https://www.google.com/";
 constexpr const char *DEFAULT_SEARCH_URL  = "https://www.google.com/search?q=%1";
+constexpr const char *DEFAULT_THEME       = "system";
 
 constexpr int DEFAULT_WINDOW_WIDTH        = 1024;
 constexpr int DEFAULT_WINDOW_HEIGHT       = 768;
@@ -49,6 +50,7 @@ constexpr const char *KEY_WINDOW_GEOMETRY        = "General/WindowGeometry";
 constexpr const char *KEY_WINDOW_STATE           = "General/WindowState";
 constexpr const char *KEY_LAST_SESSION_URLS      = "Session/LastUrls";
 constexpr const char *KEY_ZOOM_FACTOR            = "Browsing/ZoomFactor";
+constexpr const char *KEY_THEME                  = "General/Theme";
 
 constexpr const char *LABEL_GO            = "Go";
 constexpr const char *LABEL_BACK          = "Back";

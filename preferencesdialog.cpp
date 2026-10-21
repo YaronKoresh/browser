@@ -107,6 +107,8 @@ void PreferencesDialog::loadSettings()
     m_downloadDirEdit->setText(s.defaultDownloadDirectory());
     m_maxConcurrentSpin->setValue(s.maxConcurrentDownloads());
     m_jsEnabledCheck->setChecked(s.javascriptEnabled());
+    const int themeIdx = m_themeCombo->findData(s.theme());
+    m_themeCombo->setCurrentIndex(themeIdx >= 0 ? themeIdx : 0);
     m_maxHistorySpin->setValue(s.maxHistorySize());
 
     const QString currentEngine = s.defaultSearchEngine();
@@ -126,6 +128,7 @@ void PreferencesDialog::applySettings()
     s.setDefaultDownloadDirectory(m_downloadDirEdit->text().trimmed());
     s.setMaxConcurrentDownloads(m_maxConcurrentSpin->value());
     s.setJavascriptEnabled(m_jsEnabledCheck->isChecked());
+    s.setTheme(m_themeCombo->currentData().toString());
     s.setMaxHistorySize(m_maxHistorySpin->value());
 
     const int idx = m_searchEngineCombo->currentIndex();

@@ -1,4 +1,5 @@
 #include "thememanager.h"
+#include "settingsmanager.h"
 
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QStyle>
@@ -15,6 +16,8 @@ ThemeManager &ThemeManager::instance()
 ThemeManager::ThemeManager()
     : QObject(nullptr)
 {
+    connect(&SettingsManager::instance(), &SettingsManager::themeChanged,
+            this, qOverload<const QString &>(&ThemeManager::setTheme));
 }
 
 void ThemeManager::setTheme(Theme theme)

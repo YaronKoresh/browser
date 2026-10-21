@@ -46,6 +46,9 @@ public:
     [[nodiscard]] double zoomFactor() const;
     void setZoomFactor(double factor);
 
+    [[nodiscard]] QString theme() const;
+    void setTheme(const QString &name);
+
     [[nodiscard]] QStringList lastSessionUrls() const;
     void setLastSessionUrls(const QStringList &urls);
 
@@ -58,6 +61,7 @@ signals:
     void javascriptEnabledChanged(bool enabled);
     void searchEngineChanged(const QString &engineUrl);
     void zoomFactorChanged(double factor);
+    void themeChanged(const QString &name);
     void settingChanged(const QString &key);
 
 private:

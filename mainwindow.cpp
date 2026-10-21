@@ -66,6 +66,8 @@ MainWindow::MainWindow(QWidget *parent)
         SettingsManager::instance().maxConcurrentDownloads());
 
     auto &settings = SettingsManager::instance();
+    ThemeManager::instance().setTheme(settings.theme());
+
     const QByteArray savedGeometry = settings.windowGeometry();
     if (!savedGeometry.isEmpty()) {
         restoreGeometry(savedGeometry);
