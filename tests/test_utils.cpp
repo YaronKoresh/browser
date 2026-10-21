@@ -126,6 +126,25 @@ private slots:
         QVERIFY(!Utils::looksLikeUrl(""));
     }
 
+    void looksLikeUrl_schemeAndHostIgnoreLetterCase()
+    {
+        QVERIFY(Utils::looksLikeUrl("HTTP://example.com"));
+        QVERIFY(Utils::looksLikeUrl("HTTPS://EXAMPLE.COM"));
+        QVERIFY(Utils::looksLikeUrl("File:///etc/hosts"));
+        QVERIFY(Utils::looksLikeUrl("LOCALHOST"));
+        QVERIFY(Utils::looksLikeUrl("Localhost:8080"));
+    }
+
+    void looksLikeUrl_localhostWithPathQueryOrFragment()
+    {
+        QVERIFY(Utils::looksLikeUrl("localhost/app"));
+        QVERIFY(Utils::looksLikeUrl("localhost?x=1"));
+        QVERIFY(Utils::looksLikeUrl("localhost#top"));
+        QVERIFY(Utils::looksLikeUrl("localhost:3000/app?x=1"));
+        QVERIFY(!Utils::looksLikeUrl("localhostfoo"));
+        QVERIFY(!Utils::looksLikeUrl("my localhost"));
+    }
+
     void looksLikeUrl_spacesInText()
     {
         QVERIFY(!Utils::looksLikeUrl("example .com"));

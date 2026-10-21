@@ -28,10 +28,9 @@ namespace Utils {
 {
     if (input.contains(' '))
         return false;
-    if (input.startsWith("http://") || input.startsWith("https://") || input.startsWith("file://"))
-        return true;
     static const char *const kSchemes[] = {
-        "ftp://", "ftps://", "about:", "view-source:", "data:", "blob:", "qrc:", "chrome://"
+        "http://", "https://", "file://", "ftp://", "ftps://", "about:", "view-source:",
+        "data:", "blob:", "qrc:", "chrome://"
     };
     for (const char *scheme : kSchemes) {
         if (input.startsWith(QLatin1String(scheme), Qt::CaseInsensitive))
@@ -44,7 +43,8 @@ namespace Utils {
         host.chop(1);
     if (host.contains('.') && !host.split('.').contains(QString()))
         return true;
-    if (input == "localhost" || input.startsWith("localhost:"))
+    if (host.compare(QLatin1String("localhost"), Qt::CaseInsensitive) == 0
+        || host.startsWith(QLatin1String("localhost:"), Qt::CaseInsensitive))
         return true;
     return false;
 }
