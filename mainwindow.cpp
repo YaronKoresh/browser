@@ -77,7 +77,26 @@ MainWindow::MainWindow(QWidget *parent)
 
     setWindowTitle(AppConstants::APP_NAME);
 
-    createNewTab();
+    restoreLastSession();
+}
+
+void MainWindow::restoreLastSession()
+{
+    const QStringList saved = SettingsManager::instance().lastSessionUrls();
+
+    bool opened = false;
+    for (const QString &entry : saved) {
+        const QUrl url(entry);
+        if (entry.isEmpty() || !url.isValid())
+            continue;
+        m_tabManager->createTab(url);
+        opened = true;
+    }
+
+    if (opened)
+        m_tabManager->setCurrentIndex(0);
+    else
+        createNewTab();
 }
 
 void MainWindow::setupCentralUI()

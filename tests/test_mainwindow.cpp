@@ -8,6 +8,7 @@
 #include "bookmarkmanager.h"
 #include "browsertab.h"
 #include "navigationmanager.h"
+#include "settingsmanager.h"
 #include "tabmanager.h"
 
 class TestMainWindow : public QObject {
@@ -54,6 +55,47 @@ private slots:
 
         QCOMPARE(tabs->currentTab()->navigation()->currentUrl(),
                  QUrl("https://example.org/page"));
+    }
+
+    void startup_reopensTabsOfTheLastSession()
+    {
+        SettingsManager::instance().setLastSessionUrls(
+            {"https://one.example/", "https://two.example/"});
+
+        MainWindow window;
+        auto *tabs = window.findChild<TabManager *>();
+        QVERIFY(tabs);
+        QCOMPARE(tabs->count(), 2);
+        QCOMPARE(tabs->tabAt(0)->navigation()->currentUrl(), QUrl("https://one.example/"));
+        QCOMPARE(tabs->tabAt(1)->navigation()->currentUrl(), QUrl("https://two.example/"));
+        QCOMPARE(tabs->currentIndex(), 0);
+
+        SettingsManager::instance().setLastSessionUrls({});
+    }
+
+    void startup_withoutLastSessionOpensOneHomeTab()
+    {
+        SettingsManager::instance().setLastSessionUrls({});
+
+        MainWindow window;
+        auto *tabs = window.findChild<TabManager *>();
+        QVERIFY(tabs);
+        QCOMPARE(tabs->count(), 1);
+        QCOMPARE(tabs->tabAt(0)->navigation()->currentUrl(),
+                 SettingsManager::instance().homePage());
+    }
+
+    void startup_ignoresInvalidSessionEntries()
+    {
+        SettingsManager::instance().setLastSessionUrls({"", "https://ok.example/"});
+
+        MainWindow window;
+        auto *tabs = window.findChild<TabManager *>();
+        QVERIFY(tabs);
+        QCOMPARE(tabs->count(), 1);
+        QCOMPARE(tabs->tabAt(0)->navigation()->currentUrl(), QUrl("https://ok.example/"));
+
+        SettingsManager::instance().setLastSessionUrls({});
     }
 };
 

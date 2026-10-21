@@ -84,6 +84,7 @@ private:
     void setupShortcuts();
     void setupAddressBarCompleter();
     void connectGlobalSignals();
+    void restoreLastSession();
 
     void updateNavigationButtons();
     void updateCompleterModel();
