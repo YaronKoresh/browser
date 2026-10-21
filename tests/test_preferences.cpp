@@ -60,6 +60,43 @@ private slots:
         s.setHomePage(QUrl(AppConstants::DEFAULT_HOME_URL));
     }
 
+    void searchEngine_typedCustomAddressIsSaved()
+    {
+        auto &s = SettingsManager::instance();
+        s.setDefaultSearchEngine("https://www.google.com/search?q=%1");
+        PreferencesDialog dialog;
+        QComboBox *combo = nullptr;
+        for (auto *c : dialog.findChildren<QComboBox *>()) {
+            if (c->isEditable())
+                combo = c;
+        }
+        QVERIFY(combo);
+        combo->setEditText("https://search.example/find?q=%1");
+        auto *box = dialog.findChild<QDialogButtonBox *>();
+        QVERIFY(box);
+        box->button(QDialogButtonBox::Ok)->click();
+        QCOMPARE(s.defaultSearchEngine(), QString("https://search.example/find?q=%1"));
+        s.setDefaultSearchEngine("https://www.google.com/search?q=%1");
+    }
+
+    void searchEngine_listedNameIsSavedAsItsAddress()
+    {
+        auto &s = SettingsManager::instance();
+        s.setDefaultSearchEngine("https://www.google.com/search?q=%1");
+        PreferencesDialog dialog;
+        QComboBox *combo = nullptr;
+        for (auto *c : dialog.findChildren<QComboBox *>()) {
+            if (c->isEditable())
+                combo = c;
+        }
+        QVERIFY(combo);
+        combo->setCurrentIndex(combo->findData("https://duckduckgo.com/?q=%1"));
+        auto *box = dialog.findChild<QDialogButtonBox *>();
+        box->button(QDialogButtonBox::Ok)->click();
+        QCOMPARE(s.defaultSearchEngine(), QString("https://duckduckgo.com/?q=%1"));
+        s.setDefaultSearchEngine("https://www.google.com/search?q=%1");
+    }
+
     void theme_savedChoiceIsShown()
     {
         SettingsManager::instance().setTheme("dark");

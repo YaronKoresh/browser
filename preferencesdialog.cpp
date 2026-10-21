@@ -131,13 +131,10 @@ void PreferencesDialog::applySettings()
     s.setTheme(m_themeCombo->currentData().toString());
     s.setMaxHistorySize(m_maxHistorySpin->value());
 
-    const int idx = m_searchEngineCombo->currentIndex();
-    const QString engine = m_searchEngineCombo->itemData(idx).toString();
-    if (!engine.isEmpty()) {
-        s.setDefaultSearchEngine(engine);
-    } else {
-        s.setDefaultSearchEngine(m_searchEngineCombo->currentText().trimmed());
-    }
+    const QString typed = m_searchEngineCombo->currentText().trimmed();
+    const int idx = m_searchEngineCombo->findText(typed);
+    const QString engine = idx >= 0 ? m_searchEngineCombo->itemData(idx).toString() : QString();
+    s.setDefaultSearchEngine(engine.isEmpty() ? typed : engine);
 }
 
 void PreferencesDialog::onAccepted()
