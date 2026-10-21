@@ -1,12 +1,38 @@
 #include <QtTest/QTest>
 #include <QtTest/QSignalSpy>
+#include <QtCore/QSettings>
+#include <QtCore/QTemporaryDir>
 #include "settingsmanager.h"
 #include "constants.h"
 
 class TestSettings : public QObject {
     Q_OBJECT
 
+private:
+    QTemporaryDir m_configDir;
+
+    static void writeRaw(const char *key, const QVariant &value)
+    {
+        QSettings raw(QSettings::IniFormat, QSettings::UserScope,
+                      AppConstants::APP_ORGANIZATION, AppConstants::APP_NAME);
+        raw.setValue(key, value);
+        raw.sync();
+    }
+
+    static void removeRaw(const char *key)
+    {
+        QSettings raw(QSettings::IniFormat, QSettings::UserScope,
+                      AppConstants::APP_ORGANIZATION, AppConstants::APP_NAME);
+        raw.remove(key);
+        raw.sync();
+    }
+
 private slots:
+
+    void initTestCase()
+    {
+        QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, m_configDir.path());
+    }
 
     void defaults_homePage()
     {
@@ -159,6 +185,33 @@ private slots:
         QCOMPARE(s.zoomFactor(), AppConstants::ZOOM_MIN);
 
         s.setZoomFactor(AppConstants::ZOOM_DEFAULT);
+    }
+
+    void storedValuesOutOfRange_areBroughtBackIntoRange()
+    {
+        auto &s = SettingsManager::instance();
+
+        writeRaw(AppConstants::KEY_ZOOM_FACTOR, 0.0);
+        QCOMPARE(s.zoomFactor(), AppConstants::ZOOM_DEFAULT);
+        writeRaw(AppConstants::KEY_ZOOM_FACTOR, "abc");
+        QCOMPARE(s.zoomFactor(), AppConstants::ZOOM_DEFAULT);
+        writeRaw(AppConstants::KEY_ZOOM_FACTOR, 100.0);
+        QCOMPARE(s.zoomFactor(), AppConstants::ZOOM_MAX);
+        writeRaw(AppConstants::KEY_ZOOM_FACTOR, 0.01);
+        QCOMPARE(s.zoomFactor(), AppConstants::ZOOM_MIN);
+        removeRaw(AppConstants::KEY_ZOOM_FACTOR);
+
+        writeRaw(AppConstants::KEY_MAX_HISTORY, -5);
+        QCOMPARE(s.maxHistorySize(), 10);
+        writeRaw(AppConstants::KEY_MAX_HISTORY, "abc");
+        QCOMPARE(s.maxHistorySize(), AppConstants::MAX_HISTORY_SIZE);
+        removeRaw(AppConstants::KEY_MAX_HISTORY);
+
+        writeRaw(AppConstants::KEY_MAX_CONCURRENT_DL, 0);
+        QCOMPARE(s.maxConcurrentDownloads(), 1);
+        writeRaw(AppConstants::KEY_MAX_CONCURRENT_DL, "abc");
+        QCOMPARE(s.maxConcurrentDownloads(), AppConstants::MAX_CONCURRENT_DOWNLOADS);
+        removeRaw(AppConstants::KEY_MAX_CONCURRENT_DL);
     }
 
     void sessionUrls_roundTrip()

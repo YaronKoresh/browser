@@ -106,8 +106,10 @@ void SettingsManager::setDefaultDownloadDirectory(const QString &path)
 
 int SettingsManager::maxConcurrentDownloads() const
 {
-    return m_settings->value(AppConstants::KEY_MAX_CONCURRENT_DL,
-                              AppConstants::MAX_CONCURRENT_DOWNLOADS).toInt();
+    bool ok = false;
+    const int stored = m_settings->value(AppConstants::KEY_MAX_CONCURRENT_DL,
+                                         AppConstants::MAX_CONCURRENT_DOWNLOADS).toInt(&ok);
+    return ok ? qMax(1, stored) : AppConstants::MAX_CONCURRENT_DOWNLOADS;
 }
 
 void SettingsManager::setMaxConcurrentDownloads(int count)
@@ -122,8 +124,10 @@ void SettingsManager::setMaxConcurrentDownloads(int count)
 
 int SettingsManager::maxHistorySize() const
 {
-    return m_settings->value(AppConstants::KEY_MAX_HISTORY,
-                              AppConstants::MAX_HISTORY_SIZE).toInt();
+    bool ok = false;
+    const int stored = m_settings->value(AppConstants::KEY_MAX_HISTORY,
+                                         AppConstants::MAX_HISTORY_SIZE).toInt(&ok);
+    return ok ? qMax(10, stored) : AppConstants::MAX_HISTORY_SIZE;
 }
 
 void SettingsManager::setMaxHistorySize(int size)
@@ -171,8 +175,12 @@ void SettingsManager::setDefaultSearchEngine(const QString &engineUrl)
 
 double SettingsManager::zoomFactor() const
 {
-    return m_settings->value(AppConstants::KEY_ZOOM_FACTOR,
-                              AppConstants::ZOOM_DEFAULT).toDouble();
+    bool ok = false;
+    const double stored = m_settings->value(AppConstants::KEY_ZOOM_FACTOR,
+                                            AppConstants::ZOOM_DEFAULT).toDouble(&ok);
+    if (!ok || stored <= 0.0)
+        return AppConstants::ZOOM_DEFAULT;
+    return qBound(AppConstants::ZOOM_MIN, stored, AppConstants::ZOOM_MAX);
 }
 
 void SettingsManager::setZoomFactor(double factor)
