@@ -450,6 +450,8 @@ void MainWindow::navigateToInput(const QString &input)
     QUrl url;
     if (Utils::looksLikeUrl(input)) {
         url = QUrl::fromUserInput(input);
+    } else if (const QUrl bookmarked = m_bookmarkManager->urlForTitle(input); bookmarked.isValid()) {
+        url = bookmarked;
     } else {
         const QString searchTemplate = SettingsManager::instance().defaultSearchEngine();
         url = QUrl(searchTemplate.arg(QString(QUrl::toPercentEncoding(input))));

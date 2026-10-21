@@ -29,6 +29,7 @@ public:
     [[nodiscard]] QVector<Bookmark> bookmarks(const QString &folder = {}) const;
     [[nodiscard]] QStringList folders() const;
     [[nodiscard]] QStringList titles() const;
+    [[nodiscard]] QUrl urlForTitle(const QString &title) const;
     [[nodiscard]] QStringList urls() const;
     [[nodiscard]] int count() const;
 

@@ -152,6 +152,18 @@ QStringList BookmarkManager::titles() const
     return result;
 }
 
+QUrl BookmarkManager::urlForTitle(const QString &title) const
+{
+    const QString wanted = title.trimmed();
+    if (wanted.isEmpty())
+        return {};
+    for (const auto &bm : m_bookmarks) {
+        if (bm.title.trimmed().compare(wanted, Qt::CaseInsensitive) == 0)
+            return bm.url;
+    }
+    return {};
+}
+
 QStringList BookmarkManager::urls() const
 {
     QStringList result;

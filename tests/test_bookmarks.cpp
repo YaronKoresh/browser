@@ -75,6 +75,17 @@ private slots:
         QCOMPARE(reloaded.folders(), QStringList{"Work"});
     }
 
+    void urlForTitle_matchesTrimmedTitleIgnoringLetterCase()
+    {
+        BookmarkManager mgr;
+        mgr.addBookmark("My Example Site", QUrl("https://example.org/page"));
+        mgr.addBookmark("Other", QUrl("https://other.example/"));
+        QCOMPARE(mgr.urlForTitle("my example site"), QUrl("https://example.org/page"));
+        QCOMPARE(mgr.urlForTitle("  OTHER  "), QUrl("https://other.example/"));
+        QVERIFY(!mgr.urlForTitle("My Example").isValid());
+        QVERIFY(!mgr.urlForTitle("   ").isValid());
+    }
+
     void load_skipsEntriesWithoutUsableUrl()
     {
         writeFile("[\n"

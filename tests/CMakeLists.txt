@@ -116,3 +116,30 @@ if(TARGET Qt6::Widgets)
     add_test(NAME DownloadDialogTest COMMAND test_downloaddialog)
     set_tests_properties(DownloadDialogTest PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
 endif()
+
+if(TARGET Qt6::Widgets AND TARGET Qt6::WebEngineWidgets AND TARGET Qt6::PrintSupport)
+    find_package(Qt6 QUIET COMPONENTS PrintSupport)
+    add_executable(test_mainwindow
+        test_mainwindow.cpp
+        ${CMAKE_SOURCE_DIR}/mainwindow.cpp
+        ${CMAKE_SOURCE_DIR}/browsertab.cpp
+        ${CMAKE_SOURCE_DIR}/tabmanager.cpp
+        ${CMAKE_SOURCE_DIR}/navigationmanager.cpp
+        ${CMAKE_SOURCE_DIR}/settingsmanager.cpp
+        ${CMAKE_SOURCE_DIR}/thememanager.cpp
+        ${CMAKE_SOURCE_DIR}/bookmarkmanager.cpp
+        ${CMAKE_SOURCE_DIR}/bookmarksdialog.cpp
+        ${CMAKE_SOURCE_DIR}/downloadmanager.cpp
+        ${CMAKE_SOURCE_DIR}/downloadmodel.cpp
+        ${CMAKE_SOURCE_DIR}/downloaddialog.cpp
+        ${CMAKE_SOURCE_DIR}/preferencesdialog.cpp
+        ${CMAKE_SOURCE_DIR}/findbar.cpp
+    )
+    target_link_libraries(test_mainwindow PRIVATE
+        Qt6::Test Qt6::Core Qt6::Widgets Qt6::Network Qt6::WebEngineWidgets
+        Qt6::WebEngineCore Qt6::PrintSupport)
+    target_include_directories(test_mainwindow PRIVATE ${CMAKE_SOURCE_DIR})
+    add_test(NAME MainWindowTest COMMAND test_mainwindow)
+    set_tests_properties(MainWindowTest PROPERTIES
+        ENVIRONMENT "QT_QPA_PLATFORM=offscreen;QTWEBENGINE_CHROMIUM_FLAGS=--no-sandbox --disable-gpu")
+endif()
