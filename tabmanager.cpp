@@ -98,7 +98,9 @@ void TabManager::onTabTitleChanged(const QString &title)
 
     const int idx = indexOf(tab);
     if (idx >= 0) {
-        const QString display = title.isEmpty() ? tr("New Tab") : title;
+        QString display = title.isEmpty() ? tr("New Tab") : title;
+        if (tab->isPrivate())
+            display = tr("(Private) %1").arg(display);
         setTabText(idx, display);
         setTabToolTip(idx, title);
     }

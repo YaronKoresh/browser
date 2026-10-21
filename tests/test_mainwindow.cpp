@@ -191,6 +191,26 @@ private slots:
         QVERIFY(bookmarks->removeBookmark(current));
         QCOMPARE(star->text(), empty);
     }
+
+    void privateTab_titleKeepsThePrivateMarker()
+    {
+        MainWindow window;
+        auto *tabs = window.findChild<TabManager *>();
+        QVERIFY(tabs);
+        QVERIFY(QMetaObject::invokeMethod(&window, "createPrivateTab"));
+        auto *priv = tabs->currentTab();
+        QVERIFY(priv->isPrivate());
+
+        emit priv->titleChanged("Example Domain");
+        QCOMPARE(tabs->tabText(tabs->indexOf(priv)), QString("(Private) Example Domain"));
+
+        emit priv->titleChanged("");
+        QCOMPARE(tabs->tabText(tabs->indexOf(priv)), QString("(Private) New Tab"));
+
+        auto *normal = tabs->tabAt(0);
+        emit normal->titleChanged("Example Domain");
+        QCOMPARE(tabs->tabText(0), QString("Example Domain"));
+    }
 };
 
 QTEST_MAIN(TestMainWindow)
