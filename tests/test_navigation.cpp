@@ -128,6 +128,52 @@ private slots:
         QVERIFY(!m_nav->canGoForward());
     }
 
+    void history_followsConfiguredLimit()
+    {
+        QCOMPARE(m_nav->maxHistorySize(), AppConstants::MAX_HISTORY_SIZE);
+        m_nav->setMaxHistorySize(10);
+        for (int i = 0; i < 25; ++i)
+            m_nav->navigateTo(QUrl(QString("https://%1.com").arg(i)));
+
+        QCOMPARE(m_nav->historyCount(), 10);
+        QCOMPARE(m_nav->currentUrl(), QUrl("https://24.com"));
+        QCOMPARE(m_nav->history().first(), QUrl("https://15.com"));
+    }
+
+    void history_loweredLimitTrimsExisting()
+    {
+        for (int i = 0; i < 30; ++i)
+            m_nav->navigateTo(QUrl(QString("https://%1.com").arg(i)));
+        m_nav->setMaxHistorySize(12);
+
+        QCOMPARE(m_nav->historyCount(), 12);
+        QCOMPARE(m_nav->currentUrl(), QUrl("https://29.com"));
+        QCOMPARE(m_nav->currentIndex(), 11);
+        QVERIFY(m_nav->canGoBack());
+    }
+
+    void history_loweredLimitKeepsCurrentWhenGoneBack()
+    {
+        for (int i = 0; i < 20; ++i)
+            m_nav->navigateTo(QUrl(QString("https://%1.com").arg(i)));
+        for (int i = 0; i < 15; ++i)
+            m_nav->goBack();
+        m_nav->setMaxHistorySize(10);
+
+        QCOMPARE(m_nav->currentUrl(), QUrl("https://4.com"));
+        QVERIFY(m_nav->currentIndex() >= 0);
+    }
+
+    void history_limitBelowOneIsClamped()
+    {
+        m_nav->setMaxHistorySize(0);
+        QCOMPARE(m_nav->maxHistorySize(), 1);
+        m_nav->navigateTo(QUrl("https://a.com"));
+        m_nav->navigateTo(QUrl("https://b.com"));
+        QCOMPARE(m_nav->historyCount(), 1);
+        QCOMPARE(m_nav->currentUrl(), QUrl("https://b.com"));
+    }
+
     void history_bounded()
     {
         for (int i = 0; i < AppConstants::MAX_HISTORY_SIZE + 10; ++i) {

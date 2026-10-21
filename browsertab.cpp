@@ -1,5 +1,6 @@
 #include "browsertab.h"
 #include "navigationmanager.h"
+#include "settingsmanager.h"
 
 #include <QtWidgets/QVBoxLayout>
 #include <QtWebEngineWidgets/QWebEngineView>
@@ -14,6 +15,10 @@ BrowserTab::BrowserTab(QWidget *parent)
     m_layout->setContentsMargins(0, 0, 0, 0);
     m_layout->addWidget(m_webView);
     setLayout(m_layout);
+
+    m_navigation->setMaxHistorySize(SettingsManager::instance().maxHistorySize());
+    connect(&SettingsManager::instance(), &SettingsManager::maxHistorySizeChanged,
+            m_navigation, &NavigationManager::setMaxHistorySize);
 
     connect(m_navigation, &NavigationManager::navigationRequested,
             this, &BrowserTab::onNavigationRequested);

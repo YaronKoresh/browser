@@ -97,12 +97,33 @@ void NavigationManager::pushUrl(const QUrl &url)
     m_history.append(url);
     m_historyIndex = m_history.size() - 1;
 
-    while (m_history.size() > AppConstants::MAX_HISTORY_SIZE) {
+    trimHistory();
+
+    emit currentUrlChanged(url);
+}
+
+void NavigationManager::trimHistory()
+{
+    while (m_history.size() > m_maxHistorySize && m_historyIndex > 0) {
         m_history.removeFirst();
         --m_historyIndex;
     }
+    while (m_history.size() > m_maxHistorySize)
+        m_history.removeLast();
+}
 
-    emit currentUrlChanged(url);
+int NavigationManager::maxHistorySize() const
+{
+    return m_maxHistorySize;
+}
+
+void NavigationManager::setMaxHistorySize(int size)
+{
+    m_maxHistorySize = qMax(1, size);
+    const bool hadBack = m_lastCanGoBack;
+    trimHistory();
+    if (hadBack != canGoBack() || m_lastCanGoForward != canGoForward())
+        emitStateChanges();
 }
 
 void NavigationManager::emitStateChanges()
