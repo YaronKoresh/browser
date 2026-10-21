@@ -148,11 +148,16 @@ void DownloadManager::onReplyFinished()
     const int id = dl->id;
     const QNetworkReply::NetworkError error = reply->error();
 
-    if (error == QNetworkReply::NoError) {
+    if (error == QNetworkReply::NoError && dl->writeError.isEmpty()) {
         const QByteArray remaining = reply->readAll();
-        if (!remaining.isEmpty() && dl->file)
-            dl->file->write(remaining);
+        if (!remaining.isEmpty())
+            writeChunk(*dl, remaining);
 
+        if (dl->file && dl->writeError.isEmpty() && !dl->file->flush())
+            dl->writeError = dl->file->errorString();
+    }
+
+    if (error == QNetworkReply::NoError && dl->writeError.isEmpty()) {
         qint64 finalBytes = dl->latestBytesRecv;
         if (dl->file) {
             dl->file->close();
@@ -164,6 +169,16 @@ void DownloadManager::onReplyFinished()
         m_model->updateState(id, DownloadState::Completed);
         qCInfo(lcDownload) << "Download completed:" << dl->fileName << "->" << dl->savePath;
         emit downloadCompleted(id, dl->savePath);
+
+    } else if (!dl->writeError.isEmpty()) {
+        if (dl->file) {
+            dl->file->close();
+            dl->file->remove();
+        }
+        const QString errStr = QString("Could not write to file: %1").arg(dl->writeError);
+        m_model->updateState(id, DownloadState::Failed, errStr);
+        qCWarning(lcDownload) << "Download failed:" << dl->fileName << errStr;
+        emit downloadFailed(id, errStr);
 
     } else if (error == QNetworkReply::OperationCanceledError) {
         if (dl->file) {
@@ -200,10 +215,12 @@ void DownloadManager::onReplyProgress(qint64 bytesReceived, qint64 bytesTotal)
     if (!dl)
         return;
 
-    if (dl->file) {
+    if (dl->writeError.isEmpty()) {
         const QByteArray data = reply->readAll();
-        if (!data.isEmpty())
-            dl->file->write(data);
+        if (!data.isEmpty() && !writeChunk(*dl, data)) {
+            reply->abort();
+            return;
+        }
     }
 
     dl->latestBytesRecv  = bytesReceived;
@@ -262,6 +279,17 @@ void DownloadManager::startDownload(int id)
 
     qCInfo(lcDownload) << "Started download" << id << item.fileName;
     emit downloadStarted(id);
+}
+
+bool DownloadManager::writeChunk(ActiveDownload &dl, const QByteArray &data)
+{
+    if (!dl.file)
+        return true;
+    if (dl.file->write(data) != data.size()) {
+        dl.writeError = dl.file->errorString();
+        return false;
+    }
+    return true;
 }
 
 DownloadManager::ActiveDownload *DownloadManager::findByReply(QNetworkReply *reply)

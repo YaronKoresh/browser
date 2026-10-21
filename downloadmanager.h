@@ -61,9 +61,11 @@ private:
         qint64 latestBytesRecv   = 0;
         qint64 latestBytesTotal  = 0;
         bool dirty               = false;
+        QString writeError;
     };
 
     void startDownload(int id);
+    bool writeChunk(ActiveDownload &dl, const QByteArray &data);
     ActiveDownload *findByReply(QNetworkReply *reply);
     ActiveDownload *findById(int id);
 

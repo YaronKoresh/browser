@@ -4,6 +4,11 @@
 #include <QtCore/QTemporaryDir>
 #include "downloadmanager.h"
 
+#ifdef Q_OS_UNIX
+#include <signal.h>
+#include <sys/resource.h>
+#endif
+
 class TestDownloadManager : public QObject {
     Q_OBJECT
 
@@ -30,6 +35,29 @@ private:
     }
 
     QTemporaryDir m_dir;
+
+#ifdef Q_OS_UNIX
+    struct FileSizeLimit {
+        explicit FileSizeLimit(rlim_t bytes)
+        {
+            m_oldHandler = signal(SIGXFSZ, SIG_IGN);
+            getrlimit(RLIMIT_FSIZE, &m_old);
+            struct rlimit limit = m_old;
+            limit.rlim_cur = bytes;
+            m_ok = setrlimit(RLIMIT_FSIZE, &limit) == 0;
+        }
+        ~FileSizeLimit()
+        {
+            if (m_ok)
+                setrlimit(RLIMIT_FSIZE, &m_old);
+            signal(SIGXFSZ, m_oldHandler);
+        }
+        bool ok() const { return m_ok; }
+        struct rlimit m_old{};
+        void (*m_oldHandler)(int) = nullptr;
+        bool m_ok = false;
+    };
+#endif
 
 private slots:
     void cancel_completedDownloadStaysCompleted()
@@ -132,6 +160,46 @@ private slots:
         QTRY_VERIFY(!mgr.hasActiveDownloads());
         Q_UNUSED(a);
     }
+
+#ifdef Q_OS_UNIX
+    void write_failureMarksDownloadFailed()
+    {
+        DownloadManager mgr;
+        const QString src = writeSource("full.txt", QByteArray(100000, 'x'));
+        FileSizeLimit limit(4096);
+        if (!limit.ok())
+            QSKIP("cannot limit file size");
+        QSignalSpy failed(&mgr, &DownloadManager::downloadFailed);
+        QSignalSpy completed(&mgr, &DownloadManager::downloadCompleted);
+        const int id = mgr.enqueueDownload(QUrl::fromLocalFile(src),
+                                           m_dir.filePath("full.out"), "full.txt");
+        QTRY_VERIFY_WITH_TIMEOUT(failed.count() == 1, 5000);
+        QCOMPARE(completed.count(), 0);
+        QCOMPARE(mgr.model()->findById(id).state, DownloadState::Failed);
+        QVERIFY(failed.first().at(1).toString().contains("write", Qt::CaseInsensitive));
+        QVERIFY(!QFile::exists(m_dir.filePath("full.out")));
+        QTRY_VERIFY(!mgr.hasActiveDownloads());
+    }
+
+    void write_failureStartsNextQueuedDownload()
+    {
+        DownloadManager mgr;
+        mgr.setMaxConcurrentDownloads(1);
+        const QString bad = writeSource("bad.txt", QByteArray(100000, 'x'));
+        const QString good = writeSource("good.txt", "payload");
+        FileSizeLimit limit(4096);
+        if (!limit.ok())
+            QSKIP("cannot limit file size");
+        QSignalSpy completed(&mgr, &DownloadManager::downloadCompleted);
+        const int first = mgr.enqueueDownload(QUrl::fromLocalFile(bad),
+                                              m_dir.filePath("bad.out"), "bad");
+        const int second = mgr.enqueueDownload(QUrl::fromLocalFile(good),
+                                               m_dir.filePath("good.out"), "good");
+        QTRY_VERIFY_WITH_TIMEOUT(completed.count() == 1, 5000);
+        QCOMPARE(mgr.model()->findById(first).state, DownloadState::Failed);
+        QCOMPARE(mgr.model()->findById(second).state, DownloadState::Completed);
+    }
+#endif
 };
 
 QTEST_MAIN(TestDownloadManager)
