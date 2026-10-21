@@ -69,6 +69,16 @@ void BrowserTab::setPage(QWebEnginePage *page)
     applyJavascriptSetting(SettingsManager::instance().javascriptEnabled());
 }
 
+bool BrowserTab::isPrivate() const
+{
+    return m_private;
+}
+
+void BrowserTab::setPrivate(bool isPrivate)
+{
+    m_private = isPrivate;
+}
+
 void BrowserTab::loadUrl(const QUrl &url)
 {
     m_navigation->navigateTo(url);

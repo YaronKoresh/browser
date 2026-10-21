@@ -25,6 +25,9 @@ public:
 
     void setPage(QWebEnginePage *page);
 
+    [[nodiscard]] bool isPrivate() const;
+    void setPrivate(bool isPrivate);
+
 public slots:
     void loadUrl(const QUrl &url);
     void reload();
@@ -48,6 +51,7 @@ private:
     QVBoxLayout        *m_layout     = nullptr;
     QWebEngineView     *m_webView    = nullptr;
     NavigationManager  *m_navigation = nullptr;
+    bool                m_private    = false;
 };
 
 #endif // BROWSERTAB_H

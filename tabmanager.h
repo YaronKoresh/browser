@@ -18,6 +18,8 @@ public:
     void closeTab(int index);
     void closeCurrentTab();
 
+    [[nodiscard]] QStringList sessionUrls() const;
+
 signals:
     void currentTabChanged(BrowserTab *tab);
     void tabCreated(BrowserTab *tab);

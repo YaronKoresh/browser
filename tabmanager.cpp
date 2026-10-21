@@ -60,6 +60,20 @@ void TabManager::closeTab(int index)
         emit lastTabClosed();
 }
 
+QStringList TabManager::sessionUrls() const
+{
+    QStringList urls;
+    for (int i = 0; i < count(); ++i) {
+        const auto *tab = tabAt(i);
+        if (!tab || tab->isPrivate())
+            continue;
+        const QString url = tab->url().toString();
+        if (!url.isEmpty())
+            urls.append(url);
+    }
+    return urls;
+}
+
 void TabManager::closeCurrentTab()
 {
     closeTab(currentIndex());

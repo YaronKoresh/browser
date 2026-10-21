@@ -5,7 +5,9 @@
 #include <QtWebEngineCore/QWebEngineSettings>
 #include <QtWebEngineCore/QWebEnginePage>
 #include <QtWebEngineCore/QWebEngineProfile>
+#include <QtTest/QSignalSpy>
 #include "browsertab.h"
+#include "tabmanager.h"
 #include "settingsmanager.h"
 #include "navigationmanager.h"
 
@@ -65,6 +67,28 @@ private slots:
         s.setJavascriptEnabled(true);
         QVERIFY(tab.webView()->settings()->testAttribute(
             QWebEngineSettings::JavascriptEnabled));
+    }
+
+    void sessionUrls_skipPrivateAndBlankTabs()
+    {
+        TabManager tabs;
+        const QUrl page("data:text/html,<p>session</p>");
+
+        auto *normal = tabs.createTab();
+        QSignalSpy normalLoaded(normal, &BrowserTab::loadFinished);
+        normal->loadUrl(page);
+        QTRY_VERIFY_WITH_TIMEOUT(normalLoaded.count() >= 1, 10000);
+
+        auto *priv = tabs.createTab();
+        priv->setPrivate(true);
+        QVERIFY(priv->isPrivate());
+        QSignalSpy privLoaded(priv, &BrowserTab::loadFinished);
+        priv->loadUrl(QUrl("data:text/html,<p>secret</p>"));
+        QTRY_VERIFY_WITH_TIMEOUT(privLoaded.count() >= 1, 10000);
+
+        tabs.createTab();
+
+        QCOMPARE(tabs.sessionUrls(), QStringList{page.toString()});
     }
 
     void history_limitFromSettingsReachesNavigation()

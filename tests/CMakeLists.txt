@@ -60,6 +60,7 @@ if(TARGET Qt6::WebEngineWidgets AND TARGET Qt6::Widgets)
     add_executable(test_browsertab
         test_browsertab.cpp
         ${CMAKE_SOURCE_DIR}/browsertab.cpp
+        ${CMAKE_SOURCE_DIR}/tabmanager.cpp
         ${CMAKE_SOURCE_DIR}/navigationmanager.cpp
         ${CMAKE_SOURCE_DIR}/settingsmanager.cpp
     )

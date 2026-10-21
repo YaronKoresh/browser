@@ -420,12 +420,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
             auto &settings = SettingsManager::instance();
             settings.setWindowGeometry(saveGeometry());
 
-            QStringList urls;
-            for (int i = 0; i < m_tabManager->count(); ++i) {
-                if (auto *tab = m_tabManager->tabAt(i))
-                    urls.append(tab->url().toString());
-            }
-            settings.setLastSessionUrls(urls);
+            settings.setLastSessionUrls(m_tabManager->sessionUrls());
 
             m_downloadManager->cancelAll();
             event->accept();
@@ -678,6 +673,7 @@ void MainWindow::createPrivateTab()
         auto *offTheRecordProfile = new QWebEngineProfile(tab);
         auto *page = new QWebEnginePage(offTheRecordProfile, tab->webView());
         tab->setPage(page);
+        tab->setPrivate(true);
 
         connect(offTheRecordProfile, &QWebEngineProfile::downloadRequested,
                 this, &MainWindow::onDownloadRequested);
