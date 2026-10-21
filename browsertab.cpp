@@ -17,6 +17,8 @@ BrowserTab::BrowserTab(QWidget *parent)
     m_layout->addWidget(m_webView);
     setLayout(m_layout);
 
+    watchPage(m_webView->page());
+
     m_navigation->setMaxHistorySize(SettingsManager::instance().maxHistorySize());
     connect(&SettingsManager::instance(), &SettingsManager::maxHistorySizeChanged,
             m_navigation, &NavigationManager::setMaxHistorySize);
@@ -92,6 +94,7 @@ int BrowserTab::loadingProgress() const
 void BrowserTab::setPage(QWebEnginePage *page)
 {
     m_webView->setPage(page);
+    watchPage(page);
     applyJavascriptSetting(SettingsManager::instance().javascriptEnabled());
     setZoomFactor(SettingsManager::instance().zoomFactor());
 }
@@ -141,4 +144,15 @@ void BrowserTab::onUrlChanged(const QUrl &url)
 {
     m_navigation->recordExternalNavigation(url);
     emit urlChanged(url);
+}
+
+void BrowserTab::watchPage(QWebEnginePage *page)
+{
+    connect(page, &QWebEnginePage::newWindowRequested,
+            this, &BrowserTab::onNewWindowRequested);
+}
+
+void BrowserTab::onNewWindowRequested(QWebEngineNewWindowRequest &request)
+{
+    emit newTabRequested(request);
 }

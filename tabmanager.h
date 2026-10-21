@@ -5,6 +5,7 @@
 #include <QtCore/QUrl>
 
 class BrowserTab;
+class QWebEngineNewWindowRequest;
 
 class TabManager : public QTabWidget {
     Q_OBJECT
@@ -30,6 +31,7 @@ private slots:
     void onCurrentChanged(int index);
     void onTabCloseRequested(int index);
     void onTabTitleChanged(const QString &title);
+    void onNewTabRequested(QWebEngineNewWindowRequest &request);
 
 private:
     void connectTabSignals(BrowserTab *tab);

@@ -3,6 +3,7 @@
 
 #include <QtWidgets/QWidget>
 #include <QtCore/QUrl>
+#include <QtWebEngineCore/QWebEngineNewWindowRequest>
 #include <memory>
 
 class QWebEngineView;
@@ -43,13 +44,17 @@ signals:
     void loadProgress(int progress);
     void loadFinished(bool ok);
     void iconChanged(const QIcon &icon);
+    void newTabRequested(QWebEngineNewWindowRequest &request);
 
 private slots:
     void applyJavascriptSetting(bool enabled);
     void onNavigationRequested(const QUrl &url);
     void onUrlChanged(const QUrl &url);
+    void onNewWindowRequested(QWebEngineNewWindowRequest &request);
 
 private:
+    void watchPage(QWebEnginePage *page);
+
     QVBoxLayout        *m_layout     = nullptr;
     QWebEngineView     *m_webView    = nullptr;
     NavigationManager  *m_navigation = nullptr;

@@ -128,6 +128,41 @@ private slots:
         s.setZoomFactor(AppConstants::ZOOM_DEFAULT);
     }
 
+    void newWindow_scriptOpenedWindowBecomesTab()
+    {
+        TabManager tabs;
+        auto *opener = tabs.createTab();
+        QSignalSpy loaded(opener, &BrowserTab::loadFinished);
+        opener->loadUrl(QUrl("data:text/html,<p>opener</p>"));
+        QTRY_VERIFY_WITH_TIMEOUT(loaded.count() >= 1, 10000);
+        QCOMPARE(tabs.count(), 1);
+
+        opener->webView()->page()->runJavaScript("window.open('about:blank#popup');");
+
+        QTRY_COMPARE_WITH_TIMEOUT(tabs.count(), 2, 10000);
+        QVERIFY(!tabs.tabAt(1)->isPrivate());
+        QCOMPARE(tabs.currentTab(), tabs.tabAt(1));
+    }
+
+    void newWindow_privateTabOpensPrivatePopupInSameProfile()
+    {
+        TabManager tabs;
+        auto *opener = tabs.createTab();
+        auto *profile = new QWebEngineProfile(opener);
+        opener->setPage(new QWebEnginePage(profile, opener->webView()));
+        opener->setPrivate(true);
+        QSignalSpy loaded(opener, &BrowserTab::loadFinished);
+        opener->loadUrl(QUrl("data:text/html,<p>secret</p>"));
+        QTRY_VERIFY_WITH_TIMEOUT(loaded.count() >= 1, 10000);
+
+        opener->webView()->page()->runJavaScript("window.open('about:blank#popup');");
+
+        QTRY_COMPARE_WITH_TIMEOUT(tabs.count(), 2, 10000);
+        QVERIFY(tabs.tabAt(1)->isPrivate());
+        QCOMPARE(tabs.tabAt(1)->webView()->page()->profile(), profile);
+        QVERIFY(profile->isOffTheRecord());
+    }
+
     void history_limitFromSettingsReachesNavigation()
     {
         auto &s = SettingsManager::instance();

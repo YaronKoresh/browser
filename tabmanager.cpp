@@ -2,6 +2,10 @@
 #include "browsertab.h"
 
 #include <QtCore/QLoggingCategory>
+#include <QtWebEngineCore/QWebEnginePage>
+#include <QtWebEngineCore/QWebEngineProfile>
+#include <QtWebEngineCore/QWebEngineNewWindowRequest>
+#include <QtWebEngineWidgets/QWebEngineView>
 
 Q_LOGGING_CATEGORY(lcTabs, "browser.tabs")
 
@@ -110,4 +114,33 @@ void TabManager::connectTabSignals(BrowserTab *tab)
 {
     connect(tab, &BrowserTab::titleChanged,
             this, &TabManager::onTabTitleChanged);
+    connect(tab, &BrowserTab::newTabRequested,
+            this, &TabManager::onNewTabRequested);
+}
+
+void TabManager::onNewTabRequested(QWebEngineNewWindowRequest &request)
+{
+    auto *source = qobject_cast<BrowserTab *>(sender());
+    if (!source)
+        return;
+
+    const bool inBackground =
+        request.destination() == QWebEngineNewWindowRequest::InNewBackgroundTab;
+    const int previous = currentIndex();
+
+    auto *tab = createTab();
+    if (source->isPrivate()) {
+        QWebEngineProfile *profile = source->webView()->page()->profile();
+        profile->setParent(this);
+        tab->setPage(new QWebEnginePage(profile, tab->webView()));
+        tab->setPrivate(true);
+        const int idx = indexOf(tab);
+        if (idx >= 0)
+            setTabText(idx, tr("(Private) New Tab"));
+    }
+
+    request.openIn(tab->webView()->page());
+
+    if (inBackground && previous >= 0)
+        setCurrentIndex(previous);
 }
