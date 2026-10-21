@@ -3,13 +3,19 @@
 
 #include <QtCore/QString>
 
+#ifdef BROWSER_VERSION
+#define BROWSER_VERSION_TEXT BROWSER_VERSION
+#else
+#define BROWSER_VERSION_TEXT "2.0.0"
+#endif
+
 namespace AppConstants {
 
 constexpr const char *APP_NAME            = "Browser";
 constexpr const char *APP_DISPLAY_NAME    = "Yaron's Browser";
 constexpr const char *APP_ORGANIZATION    = "Yaron Koresh";
 constexpr const char *APP_DESCRIPTION     = "A modern web browser built with Qt.";
-constexpr const char *APP_VERSION         = "2.0.0";
+constexpr const char *APP_VERSION         = BROWSER_VERSION_TEXT;
 
 constexpr const char *DEFAULT_HOME_URL    = "https://www.google.com/";
 constexpr const char *DEFAULT_SEARCH_URL  = "https://www.google.com/search?q=%1";

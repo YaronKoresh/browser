@@ -28,3 +28,12 @@ add_executable(test_settings
 target_link_libraries(test_settings PRIVATE Qt6::Test Qt6::Core)
 target_include_directories(test_settings PRIVATE ${CMAKE_SOURCE_DIR})
 add_test(NAME SettingsTest COMMAND test_settings)
+
+add_executable(test_constants test_constants.cpp)
+target_link_libraries(test_constants PRIVATE Qt6::Test Qt6::Core)
+target_include_directories(test_constants PRIVATE ${CMAKE_SOURCE_DIR})
+target_compile_definitions(test_constants PRIVATE
+    ${BROWSER_VERSION_DEFINITION}
+    EXPECTED_VERSION="${PROJECT_VERSION}"
+)
+add_test(NAME ConstantsTest COMMAND test_constants)

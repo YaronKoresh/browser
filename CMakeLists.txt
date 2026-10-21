@@ -60,8 +60,10 @@ else()
     qt_add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
 endif()
 
+set(BROWSER_VERSION_DEFINITION BROWSER_VERSION="${PROJECT_VERSION}")
+
 target_compile_definitions(${PROJECT_NAME} PRIVATE
-    APP_VERSION="${PROJECT_VERSION}"
+    ${BROWSER_VERSION_DEFINITION}
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
