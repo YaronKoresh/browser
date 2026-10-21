@@ -3,15 +3,27 @@
 #include <QtCore/QSettings>
 #include <QtCore/QStandardPaths>
 #include <QtCore/QTemporaryDir>
+#include <QtGui/QDesktopServices>
 #include <QtWidgets/QCompleter>
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QPushButton>
 #include "mainwindow.h"
 #include "bookmarkmanager.h"
+#include "downloadmanager.h"
 #include "browsertab.h"
 #include "navigationmanager.h"
 #include "settingsmanager.h"
 #include "tabmanager.h"
+
+class UrlSink : public QObject {
+    Q_OBJECT
+
+public:
+    QList<QUrl> urls;
+
+public slots:
+    void handle(const QUrl &url) { urls.append(url); }
+};
 
 class TestMainWindow : public QObject {
     Q_OBJECT
@@ -120,6 +132,36 @@ private slots:
         QAbstractItemModel *model = completer->model();
         for (int row = 0; row < model->rowCount(); ++row)
             QVERIFY(!model->index(row, 0).data().toString().contains("secret.example"));
+    }
+
+    void download_completedProgramIsNotLaunched()
+    {
+        MainWindow window;
+        auto *downloads = window.findChild<DownloadManager *>();
+        QVERIFY(downloads);
+
+        UrlSink sink;
+        const QList<QUrl> &opened = sink.urls;
+        QDesktopServices::setUrlHandler("file", &sink, "handle");
+
+        QTemporaryDir dir;
+        auto addItem = [&](const QString &name) {
+            DownloadItem item;
+            item.fileName = name;
+            item.savePath = dir.path() + "/" + name;
+            const int id = downloads->model()->addDownload(item);
+            emit downloads->downloadCompleted(id, item.savePath);
+        };
+
+        addItem("installer.exe");
+        addItem("run-me.sh");
+        addItem("notes.txt");
+        QDesktopServices::unsetUrlHandler("file");
+
+        QCOMPARE(opened.size(), 3);
+        QCOMPARE(opened[0], QUrl::fromLocalFile(dir.path()));
+        QCOMPARE(opened[1], QUrl::fromLocalFile(dir.path()));
+        QCOMPARE(opened[2], QUrl::fromLocalFile(dir.path() + "/notes.txt"));
     }
 };
 

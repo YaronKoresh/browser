@@ -162,6 +162,30 @@ private slots:
     {
         QVERIFY(!Utils::looksLikeUrl("example .com"));
     }
+
+    void isLaunchableProgram_programsAndScripts()
+    {
+        QVERIFY(Utils::isLaunchableProgram("setup.exe"));
+        QVERIFY(Utils::isLaunchableProgram("SETUP.EXE"));
+        QVERIFY(Utils::isLaunchableProgram("run.sh"));
+        QVERIFY(Utils::isLaunchableProgram("task.ps1"));
+        QVERIFY(Utils::isLaunchableProgram("app.desktop"));
+        QVERIFY(Utils::isLaunchableProgram("tool.AppImage"));
+        QVERIFY(Utils::isLaunchableProgram("archive.tar.sh"));
+    }
+
+    void isLaunchableProgram_documentsAndMedia()
+    {
+        QVERIFY(!Utils::isLaunchableProgram("notes.txt"));
+        QVERIFY(!Utils::isLaunchableProgram("photo.jpg"));
+        QVERIFY(!Utils::isLaunchableProgram("report.pdf"));
+        QVERIFY(!Utils::isLaunchableProgram("archive.zip"));
+        QVERIFY(!Utils::isLaunchableProgram("noextension"));
+        QVERIFY(!Utils::isLaunchableProgram("trailingdot."));
+        QVERIFY(!Utils::isLaunchableProgram(".hidden"));
+        QVERIFY(!Utils::isLaunchableProgram("exe"));
+        QVERIFY(!Utils::isLaunchableProgram(""));
+    }
 };
 
 QTEST_MAIN(TestUtils)

@@ -673,7 +673,11 @@ void MainWindow::onDownloadCompleted(int id, const QString &savePath)
         tr("Downloaded %1 to %2").arg(item.fileName, savePath),
         AppConstants::STATUS_TIMEOUT_LONG);
 
-    QDesktopServices::openUrl(QUrl::fromLocalFile(savePath));
+    const QFileInfo saved(savePath);
+    if (Utils::isLaunchableProgram(saved.fileName()))
+        QDesktopServices::openUrl(QUrl::fromLocalFile(saved.absolutePath()));
+    else
+        QDesktopServices::openUrl(QUrl::fromLocalFile(savePath));
 }
 
 void MainWindow::onDownloadFailed(int id, const QString &error)

@@ -58,6 +58,25 @@ namespace detail {
     return QString("%1 GB").arg(static_cast<double>(bytes) / BYTES_PER_GB, 0, 'f', 2);
 }
 
+[[nodiscard]] inline bool isLaunchableProgram(const QString &fileName)
+{
+    static const char *const kExtensions[] = {
+        "exe", "msi", "bat", "cmd", "com", "scr", "pif", "lnk", "reg", "dll", "cpl",
+        "ps1", "psm1", "vbs", "vbe", "js", "jse", "wsf", "wsh", "hta", "jar",
+        "sh", "bash", "run", "bin", "command", "desktop", "appimage", "app",
+        "apk", "deb", "rpm", "pkg", "dmg", "py", "pl", "rb", "php"
+    };
+    const int dot = fileName.lastIndexOf('.');
+    if (dot < 0)
+        return false;
+    const QString extension = fileName.mid(dot + 1).trimmed();
+    for (const char *candidate : kExtensions) {
+        if (extension.compare(QLatin1String(candidate), Qt::CaseInsensitive) == 0)
+            return true;
+    }
+    return false;
+}
+
 [[nodiscard]] inline bool looksLikeUrl(const QString &input)
 {
     if (input.contains(' '))
