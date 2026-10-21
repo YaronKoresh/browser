@@ -145,6 +145,19 @@ private slots:
         QVERIFY(!Utils::looksLikeUrl("my localhost"));
     }
 
+    void looksLikeUrl_numbersWithDotsAreSearchTextUnlessIpv4()
+    {
+        QVERIFY(!Utils::looksLikeUrl("3.14"));
+        QVERIFY(!Utils::looksLikeUrl("1.5"));
+        QVERIFY(!Utils::looksLikeUrl("10.5.1"));
+        QVERIFY(!Utils::looksLikeUrl("1.2.3.4.5"));
+        QVERIFY(!Utils::looksLikeUrl("300.1.1.1"));
+        QVERIFY(Utils::looksLikeUrl("192.168.1.1"));
+        QVERIFY(Utils::looksLikeUrl("192.168.1.1:8080"));
+        QVERIFY(Utils::looksLikeUrl("127.0.0.1/status"));
+        QVERIFY(Utils::looksLikeUrl("v1.example.com"));
+    }
+
     void looksLikeUrl_spacesInText()
     {
         QVERIFY(!Utils::looksLikeUrl("example .com"));
