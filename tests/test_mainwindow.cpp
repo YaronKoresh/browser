@@ -163,6 +163,34 @@ private slots:
         QCOMPARE(opened[1], QUrl::fromLocalFile(dir.path()));
         QCOMPARE(opened[2], QUrl::fromLocalFile(dir.path() + "/notes.txt"));
     }
+
+    void bookmarkStar_followsBookmarkChangesOfTheCurrentPage()
+    {
+        MainWindow window;
+        auto *bookmarks = window.findChild<BookmarkManager *>();
+        auto *tabs = window.findChild<TabManager *>();
+        QVERIFY(bookmarks);
+        QVERIFY(tabs);
+
+        QPushButton *star = nullptr;
+        for (auto *b : window.findChildren<QPushButton *>()) {
+            if (b->toolTip() == "Toggle Bookmark")
+                star = b;
+        }
+        QVERIFY(star);
+
+        QTRY_VERIFY_WITH_TIMEOUT(!tabs->currentTab()->url().isEmpty(), 30000);
+        const QUrl current = tabs->currentTab()->url();
+        const QString empty = QString::fromUtf8("\xe2\x98\x86");
+        const QString filled = QString::fromUtf8("\xe2\x98\x85");
+        QCOMPARE(star->text(), empty);
+
+        QVERIFY(bookmarks->addBookmark("Current page", current));
+        QCOMPARE(star->text(), filled);
+
+        QVERIFY(bookmarks->removeBookmark(current));
+        QCOMPARE(star->text(), empty);
+    }
 };
 
 QTEST_MAIN(TestMainWindow)

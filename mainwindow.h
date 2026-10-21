@@ -88,6 +88,7 @@ private:
 
     void updateNavigationButtons();
     void updateCompleterModel();
+    void updateBookmarkStar();
     void disconnectCurrentTab();
     void connectCurrentTab(BrowserTab *tab);
     void navigateToInput(const QString &input);

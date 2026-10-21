@@ -512,10 +512,7 @@ void MainWindow::onCurrentTabChanged(BrowserTab *tab)
                            : QString("%1 - %2").arg(title, AppConstants::APP_NAME));
         updateNavigationButtons();
 
-        const bool bookmarked = m_bookmarkManager->isBookmarked(tab->url());
-        m_bookmarkButton->setText(bookmarked
-            ? QString::fromUtf8("\xe2\x98\x85")
-            : QString::fromUtf8("\xe2\x98\x86"));
+        updateBookmarkStar();
     } else {
         m_addressBar->clear();
         setWindowTitle(AppConstants::APP_NAME);
@@ -588,11 +585,7 @@ void MainWindow::onTabUrlChanged(const QUrl &url)
     statusBar()->showMessage(tr("URL: %1").arg(url.toString()),
                              AppConstants::STATUS_TIMEOUT_SHORT);
 
-    const bool bookmarked = m_bookmarkManager->isBookmarked(url);
-    m_bookmarkButton->setText(bookmarked
-        ? QString::fromUtf8("\xe2\x98\x85")
-        : QString::fromUtf8("\xe2\x98\x86"));
-
+    updateBookmarkStar();
     updateCompleterModel();
 }
 
@@ -796,7 +789,17 @@ void MainWindow::showBookmarkManager()
 
 void MainWindow::onBookmarksChanged()
 {
+    updateBookmarkStar();
     updateCompleterModel();
+}
+
+void MainWindow::updateBookmarkStar()
+{
+    const auto *tab = m_tabManager->currentTab();
+    const bool bookmarked = tab && m_bookmarkManager->isBookmarked(tab->url());
+    m_bookmarkButton->setText(bookmarked
+        ? QString::fromUtf8("\xe2\x98\x85")
+        : QString::fromUtf8("\xe2\x98\x86"));
 }
 
 void MainWindow::toggleFindBar()
