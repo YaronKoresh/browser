@@ -5,6 +5,11 @@
 #include <QtCore/QStandardPaths>
 #include "bookmarkmanager.h"
 
+#ifdef Q_OS_UNIX
+#include <signal.h>
+#include <sys/resource.h>
+#endif
+
 class TestBookmarks : public QObject {
     Q_OBJECT
 
@@ -82,6 +87,44 @@ private slots:
         QCOMPARE(mgr.count(), 1);
         QCOMPARE(mgr.bookmarks().first().title, QString("Good"));
     }
+
+#ifdef Q_OS_UNIX
+    void save_failedWriteKeepsPreviousFile()
+    {
+        {
+            BookmarkManager mgr;
+            QVERIFY(mgr.addBookmark("One", QUrl("https://one.example/")));
+            QVERIFY(mgr.addBookmark("Two", QUrl("https://two.example/")));
+        }
+        QFile before(filePath());
+        QVERIFY(before.open(QIODevice::ReadOnly));
+        const QByteArray original = before.readAll();
+        before.close();
+
+        auto *oldHandler = signal(SIGXFSZ, SIG_IGN);
+        struct rlimit old{};
+        getrlimit(RLIMIT_FSIZE, &old);
+        struct rlimit limit = old;
+        limit.rlim_cur = 64;
+        if (setrlimit(RLIMIT_FSIZE, &limit) != 0) {
+            signal(SIGXFSZ, oldHandler);
+            QSKIP("cannot limit file size");
+        }
+        {
+            BookmarkManager mgr;
+            QCOMPARE(mgr.count(), 2);
+            mgr.addBookmark("Three", QUrl("https://three.example/"));
+        }
+        setrlimit(RLIMIT_FSIZE, &old);
+        signal(SIGXFSZ, oldHandler);
+
+        QFile after(filePath());
+        QVERIFY(after.open(QIODevice::ReadOnly));
+        QCOMPARE(after.readAll(), original);
+        BookmarkManager reloaded;
+        QCOMPARE(reloaded.count(), 2);
+    }
+#endif
 
     void load_invalidJsonKeepsFileUntouched()
     {

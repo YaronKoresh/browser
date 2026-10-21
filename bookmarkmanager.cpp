@@ -1,6 +1,7 @@
 #include "bookmarkmanager.h"
 
 #include <QtCore/QFile>
+#include <QtCore/QSaveFile>
 #include <QtCore/QJsonDocument>
 #include <QtCore/QJsonObject>
 #include <QtCore/QJsonArray>
@@ -55,7 +56,7 @@ void BookmarkManager::save() const
 
     QDir().mkpath(QFileInfo(path).path());
 
-    QFile file(path);
+    QSaveFile file(path);
     if (!file.open(QIODevice::WriteOnly)) {
         qCWarning(lcBookmarks) << "Could not save bookmarks to:" << path;
         return;
@@ -70,7 +71,12 @@ void BookmarkManager::save() const
         arr.append(obj);
     }
 
-    file.write(QJsonDocument(arr).toJson(QJsonDocument::Indented));
+    const QByteArray json = QJsonDocument(arr).toJson(QJsonDocument::Indented);
+    if (file.write(json) != json.size() || !file.flush() || !file.commit()) {
+        qCWarning(lcBookmarks) << "Could not save bookmarks to:" << path << file.errorString();
+        file.cancelWriting();
+        return;
+    }
     qCInfo(lcBookmarks) << "Saved" << m_bookmarks.size() << "bookmarks";
 }
 
