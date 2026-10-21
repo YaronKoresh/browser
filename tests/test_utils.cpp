@@ -98,6 +98,18 @@ private slots:
         QVERIFY(!Utils::looksLikeUrl("google"));
     }
 
+    void looksLikeUrl_dotAtEdgeIsSearchText()
+    {
+        QVERIFY(!Utils::looksLikeUrl("hello."));
+        QVERIFY(!Utils::looksLikeUrl(".hidden"));
+        QVERIFY(!Utils::looksLikeUrl("..."));
+        QVERIFY(!Utils::looksLikeUrl("a..b"));
+        QVERIFY(Utils::looksLikeUrl("example.com."));
+        QVERIFY(Utils::looksLikeUrl("example.com/a..b"));
+        QVERIFY(Utils::looksLikeUrl("example.com/page."));
+        QVERIFY(Utils::looksLikeUrl("example.com?q=a.b"));
+    }
+
     void looksLikeUrl_emptyString()
     {
         QVERIFY(!Utils::looksLikeUrl(""));

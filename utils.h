@@ -4,6 +4,8 @@
 #include "constants.h"
 
 #include <QtCore/QString>
+#include <QtCore/QStringList>
+#include <QtCore/QRegularExpression>
 
 namespace Utils {
 
@@ -28,7 +30,10 @@ namespace Utils {
         return false;
     if (input.startsWith("http://") || input.startsWith("https://") || input.startsWith("file://"))
         return true;
-    if (input.contains('.') && !input.contains(' '))
+    QString host = input.left(input.indexOf(QRegularExpression("[/?#]")));
+    if (host.endsWith('.'))
+        host.chop(1);
+    if (host.contains('.') && !host.split('.').contains(QString()))
         return true;
     if (input == "localhost" || input.startsWith("localhost:"))
         return true;
