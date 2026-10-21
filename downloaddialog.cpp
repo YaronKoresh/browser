@@ -1,5 +1,6 @@
 #include "downloaddialog.h"
 #include "constants.h"
+#include "settingsmanager.h"
 
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QPushButton>
@@ -56,8 +57,9 @@ void DownloadDialog::setFileName(const QString &fileName)
 {
     m_suggestedFileName = QFileInfo(fileName).fileName();
 
-    const QString downloadDir =
-        QStandardPaths::writableLocation(QStandardPaths::DownloadLocation);
+    QString downloadDir = SettingsManager::instance().defaultDownloadDirectory().trimmed();
+    if (downloadDir.isEmpty())
+        downloadDir = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation);
     const QString fullPath = downloadDir + "/" + m_suggestedFileName;
 
     m_fileNameInput->setText(fullPath);

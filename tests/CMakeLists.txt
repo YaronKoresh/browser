@@ -105,4 +105,14 @@ if(TARGET Qt6::Widgets)
     target_include_directories(test_preferences PRIVATE ${CMAKE_SOURCE_DIR})
     add_test(NAME PreferencesTest COMMAND test_preferences)
     set_tests_properties(PreferencesTest PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
+
+    add_executable(test_downloaddialog
+        test_downloaddialog.cpp
+        ${CMAKE_SOURCE_DIR}/downloaddialog.cpp
+        ${CMAKE_SOURCE_DIR}/settingsmanager.cpp
+    )
+    target_link_libraries(test_downloaddialog PRIVATE Qt6::Test Qt6::Core Qt6::Widgets)
+    target_include_directories(test_downloaddialog PRIVATE ${CMAKE_SOURCE_DIR})
+    add_test(NAME DownloadDialogTest COMMAND test_downloaddialog)
+    set_tests_properties(DownloadDialogTest PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
 endif()
