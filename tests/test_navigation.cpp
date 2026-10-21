@@ -60,6 +60,32 @@ private slots:
         QCOMPARE(m_nav->historyCount(), 1);
     }
 
+    void navigateTo_currentUrlLoadsAgainWithoutNewHistoryEntry()
+    {
+        m_nav->navigateTo(QUrl("https://a.com"));
+        QSignalSpy requested(m_nav, &NavigationManager::navigationRequested);
+        QSignalSpy urlChanged(m_nav, &NavigationManager::currentUrlChanged);
+
+        m_nav->navigateTo(QUrl("https://a.com"));
+
+        QCOMPARE(requested.count(), 1);
+        QCOMPARE(requested.first().first().toUrl(), QUrl("https://a.com"));
+        QCOMPARE(urlChanged.count(), 0);
+        QCOMPARE(m_nav->historyCount(), 1);
+        QCOMPARE(m_nav->currentIndex(), 0);
+    }
+
+    void recordExternalNavigation_currentUrlDoesNotRequestLoad()
+    {
+        m_nav->navigateTo(QUrl("https://a.com"));
+        QSignalSpy requested(m_nav, &NavigationManager::navigationRequested);
+
+        m_nav->recordExternalNavigation(QUrl("https://a.com"));
+
+        QCOMPARE(requested.count(), 0);
+        QCOMPARE(m_nav->historyCount(), 1);
+    }
+
     void navigateTo_invalidUrlIgnored()
     {
         m_nav->navigateTo(QUrl());

@@ -44,6 +44,7 @@ void NavigationManager::navigateTo(const QUrl &url)
 
     if (m_historyIndex >= 0 && m_historyIndex < m_history.size()
         && m_history[m_historyIndex] == url) {
+        emit navigationRequested(url);
         return;
     }
 
