@@ -37,6 +37,7 @@ signals:
     void iconChanged(const QIcon &icon);
 
 private slots:
+    void applyJavascriptSetting(bool enabled);
     void onNavigationRequested(const QUrl &url);
     void onUrlChanged(const QUrl &url);
 

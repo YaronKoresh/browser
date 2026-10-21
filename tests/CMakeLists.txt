@@ -54,3 +54,19 @@ add_executable(test_bookmarks
 target_link_libraries(test_bookmarks PRIVATE Qt6::Test Qt6::Core)
 target_include_directories(test_bookmarks PRIVATE ${CMAKE_SOURCE_DIR})
 add_test(NAME BookmarksTest COMMAND test_bookmarks)
+
+find_package(Qt6 QUIET COMPONENTS Widgets WebEngineWidgets WebEngineCore)
+if(TARGET Qt6::WebEngineWidgets AND TARGET Qt6::Widgets)
+    add_executable(test_browsertab
+        test_browsertab.cpp
+        ${CMAKE_SOURCE_DIR}/browsertab.cpp
+        ${CMAKE_SOURCE_DIR}/navigationmanager.cpp
+        ${CMAKE_SOURCE_DIR}/settingsmanager.cpp
+    )
+    target_link_libraries(test_browsertab PRIVATE
+        Qt6::Test Qt6::Core Qt6::Widgets Qt6::WebEngineWidgets Qt6::WebEngineCore)
+    target_include_directories(test_browsertab PRIVATE ${CMAKE_SOURCE_DIR})
+    add_test(NAME BrowserTabTest COMMAND test_browsertab)
+    set_tests_properties(BrowserTabTest PROPERTIES
+        ENVIRONMENT "QT_QPA_PLATFORM=offscreen;QTWEBENGINE_CHROMIUM_FLAGS=--no-sandbox --disable-gpu")
+endif()

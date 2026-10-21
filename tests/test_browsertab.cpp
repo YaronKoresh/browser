@@ -1,0 +1,68 @@
+#include <QtTest/QTest>
+#include <QtCore/QSettings>
+#include <QtCore/QTemporaryDir>
+#include <QtWebEngineWidgets/QWebEngineView>
+#include <QtWebEngineCore/QWebEngineSettings>
+#include "browsertab.h"
+#include "settingsmanager.h"
+#include "navigationmanager.h"
+
+class TestBrowserTab : public QObject {
+    Q_OBJECT
+
+private:
+    QTemporaryDir m_configDir;
+
+private slots:
+    void initTestCase()
+    {
+        QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, m_configDir.path());
+    }
+
+    void javascript_disabledSettingIsAppliedToNewTab()
+    {
+        auto &s = SettingsManager::instance();
+        s.setJavascriptEnabled(false);
+
+        BrowserTab tab;
+        QVERIFY(!tab.webView()->settings()->testAttribute(
+            QWebEngineSettings::JavascriptEnabled));
+
+        s.setJavascriptEnabled(true);
+    }
+
+    void javascript_settingChangeReachesOpenTab()
+    {
+        auto &s = SettingsManager::instance();
+        s.setJavascriptEnabled(true);
+
+        BrowserTab tab;
+        QVERIFY(tab.webView()->settings()->testAttribute(
+            QWebEngineSettings::JavascriptEnabled));
+
+        s.setJavascriptEnabled(false);
+        QVERIFY(!tab.webView()->settings()->testAttribute(
+            QWebEngineSettings::JavascriptEnabled));
+
+        s.setJavascriptEnabled(true);
+        QVERIFY(tab.webView()->settings()->testAttribute(
+            QWebEngineSettings::JavascriptEnabled));
+    }
+
+    void history_limitFromSettingsReachesNavigation()
+    {
+        auto &s = SettingsManager::instance();
+        s.setMaxHistorySize(10);
+
+        BrowserTab tab;
+        QCOMPARE(tab.navigation()->maxHistorySize(), 10);
+
+        s.setMaxHistorySize(50);
+        QCOMPARE(tab.navigation()->maxHistorySize(), 50);
+
+        s.setMaxHistorySize(AppConstants::MAX_HISTORY_SIZE);
+    }
+};
+
+QTEST_MAIN(TestBrowserTab)
+#include "test_browsertab.moc"

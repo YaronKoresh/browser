@@ -5,6 +5,7 @@
 #include <QtWidgets/QVBoxLayout>
 #include <QtWebEngineWidgets/QWebEngineView>
 #include <QtWebEngineCore/QWebEnginePage>
+#include <QtWebEngineCore/QWebEngineSettings>
 
 BrowserTab::BrowserTab(QWidget *parent)
     : QWidget(parent)
@@ -19,6 +20,10 @@ BrowserTab::BrowserTab(QWidget *parent)
     m_navigation->setMaxHistorySize(SettingsManager::instance().maxHistorySize());
     connect(&SettingsManager::instance(), &SettingsManager::maxHistorySizeChanged,
             m_navigation, &NavigationManager::setMaxHistorySize);
+
+    applyJavascriptSetting(SettingsManager::instance().javascriptEnabled());
+    connect(&SettingsManager::instance(), &SettingsManager::javascriptEnabledChanged,
+            this, &BrowserTab::applyJavascriptSetting);
 
     connect(m_navigation, &NavigationManager::navigationRequested,
             this, &BrowserTab::onNavigationRequested);
@@ -76,6 +81,11 @@ void BrowserTab::stop()
 void BrowserTab::setZoomFactor(double factor)
 {
     m_webView->setZoomFactor(factor);
+}
+
+void BrowserTab::applyJavascriptSetting(bool enabled)
+{
+    m_webView->settings()->setAttribute(QWebEngineSettings::JavascriptEnabled, enabled);
 }
 
 void BrowserTab::onNavigationRequested(const QUrl &url)
