@@ -153,9 +153,14 @@ void DownloadManager::onReplyFinished()
         if (!remaining.isEmpty() && dl->file)
             dl->file->write(remaining);
 
-        if (dl->file)
+        qint64 finalBytes = dl->latestBytesRecv;
+        if (dl->file) {
             dl->file->close();
+            finalBytes = qMax(finalBytes, dl->file->size());
+        }
 
+        m_model->updateProgress(id, finalBytes, finalBytes);
+        emit progressUpdated(id, finalBytes, finalBytes);
         m_model->updateState(id, DownloadState::Completed);
         qCInfo(lcDownload) << "Download completed:" << dl->fileName << "->" << dl->savePath;
         emit downloadCompleted(id, dl->savePath);

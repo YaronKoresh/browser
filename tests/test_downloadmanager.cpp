@@ -47,6 +47,19 @@ private slots:
         QVERIFY(QFile::exists(m_dir.filePath("a.txt.out")));
     }
 
+    void completed_modelShowsFullProgress()
+    {
+        DownloadManager mgr;
+        const int id = downloadToCompletion(mgr, "p.txt");
+        QVERIFY(id > 0);
+
+        const DownloadItem item = mgr.model()->findById(id);
+        QCOMPARE(item.bytesReceived, qint64(7));
+        QCOMPARE(item.bytesTotal, qint64(7));
+        const QModelIndex idx = mgr.model()->index(0);
+        QCOMPARE(idx.data(DownloadModel::ProgressRole).toDouble(), 1.0);
+    }
+
     void cancel_unknownIdIsIgnored()
     {
         DownloadManager mgr;
