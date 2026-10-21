@@ -25,6 +25,10 @@ BrowserTab::BrowserTab(QWidget *parent)
     connect(&SettingsManager::instance(), &SettingsManager::javascriptEnabledChanged,
             this, &BrowserTab::applyJavascriptSetting);
 
+    setZoomFactor(SettingsManager::instance().zoomFactor());
+    connect(&SettingsManager::instance(), &SettingsManager::zoomFactorChanged,
+            this, &BrowserTab::setZoomFactor);
+
     connect(m_navigation, &NavigationManager::navigationRequested,
             this, &BrowserTab::onNavigationRequested);
 
@@ -67,6 +71,7 @@ void BrowserTab::setPage(QWebEnginePage *page)
 {
     m_webView->setPage(page);
     applyJavascriptSetting(SettingsManager::instance().javascriptEnabled());
+    setZoomFactor(SettingsManager::instance().zoomFactor());
 }
 
 bool BrowserTab::isPrivate() const

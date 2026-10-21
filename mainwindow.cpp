@@ -813,6 +813,7 @@ void MainWindow::zoomIn()
     double factor = tab->zoomFactor() + AppConstants::ZOOM_STEP;
     factor = qMin(factor, AppConstants::ZOOM_MAX);
     tab->setZoomFactor(factor);
+    SettingsManager::instance().setZoomFactor(factor);
     statusBar()->showMessage(tr("Zoom: %1%").arg(qRound(factor * 100)),
                              AppConstants::STATUS_TIMEOUT_SHORT);
 }
@@ -826,6 +827,7 @@ void MainWindow::zoomOut()
     double factor = tab->zoomFactor() - AppConstants::ZOOM_STEP;
     factor = qMax(factor, AppConstants::ZOOM_MIN);
     tab->setZoomFactor(factor);
+    SettingsManager::instance().setZoomFactor(factor);
     statusBar()->showMessage(tr("Zoom: %1%").arg(qRound(factor * 100)),
                              AppConstants::STATUS_TIMEOUT_SHORT);
 }
@@ -837,6 +839,7 @@ void MainWindow::zoomReset()
         return;
 
     tab->setZoomFactor(AppConstants::ZOOM_DEFAULT);
+    SettingsManager::instance().setZoomFactor(AppConstants::ZOOM_DEFAULT);
     statusBar()->showMessage(tr("Zoom: 100%"), AppConstants::STATUS_TIMEOUT_SHORT);
 }
 

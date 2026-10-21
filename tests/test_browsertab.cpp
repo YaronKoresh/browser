@@ -91,6 +91,43 @@ private slots:
         QCOMPARE(tabs.sessionUrls(), QStringList{page.toString()});
     }
 
+    void zoom_savedFactorIsAppliedToNewTab()
+    {
+        auto &s = SettingsManager::instance();
+        s.setZoomFactor(1.5);
+
+        BrowserTab tab;
+        QVERIFY(qFuzzyCompare(tab.zoomFactor(), 1.5));
+
+        s.setZoomFactor(AppConstants::ZOOM_DEFAULT);
+    }
+
+    void zoom_settingChangeReachesOpenTab()
+    {
+        auto &s = SettingsManager::instance();
+        s.setZoomFactor(AppConstants::ZOOM_DEFAULT);
+
+        BrowserTab tab;
+        s.setZoomFactor(2.0);
+        QVERIFY(qFuzzyCompare(tab.zoomFactor(), 2.0));
+
+        s.setZoomFactor(AppConstants::ZOOM_DEFAULT);
+        QVERIFY(qFuzzyCompare(tab.zoomFactor(), AppConstants::ZOOM_DEFAULT));
+    }
+
+    void zoom_savedFactorIsAppliedToReplacedPage()
+    {
+        auto &s = SettingsManager::instance();
+        s.setZoomFactor(1.25);
+
+        BrowserTab tab;
+        auto *profile = new QWebEngineProfile(&tab);
+        tab.setPage(new QWebEnginePage(profile, tab.webView()));
+        QVERIFY(qFuzzyCompare(tab.zoomFactor(), 1.25));
+
+        s.setZoomFactor(AppConstants::ZOOM_DEFAULT);
+    }
+
     void history_limitFromSettingsReachesNavigation()
     {
         auto &s = SettingsManager::instance();
