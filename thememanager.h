@@ -30,8 +30,10 @@ private:
     void applyLightPalette();
     void applyDarkPalette();
     void applySystemPalette();
+    void useStyle(const QString &name);
 
-    Theme m_current = Theme::System;
+    Theme   m_current = Theme::System;
+    QString m_systemStyleName;
 };
 
 #endif // THEMEMANAGER_H

@@ -83,6 +83,7 @@ private:
     void setupDownloadManagerDialog();
     void setupSourceDialog();
     void setupAboutDialog();
+    void applyAboutDialogBackground();
     void setupShortcuts();
     void setupAddressBarCompleter();
     void connectGlobalSignals();

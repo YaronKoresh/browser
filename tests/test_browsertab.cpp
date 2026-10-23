@@ -9,6 +9,7 @@
 #include "browsertab.h"
 #include "tabmanager.h"
 #include "settingsmanager.h"
+#include "thememanager.h"
 #include "navigationmanager.h"
 
 class TestBrowserTab : public QObject {
@@ -67,6 +68,43 @@ private slots:
         s.setJavascriptEnabled(true);
         QVERIFY(tab.webView()->settings()->testAttribute(
             QWebEngineSettings::JavascriptEnabled));
+    }
+
+    void theme_darkThemeDarkensPagesInOpenTab()
+    {
+        auto &s = SettingsManager::instance();
+        s.setTheme("light");
+
+        BrowserTab tab;
+        QVERIFY(!tab.webView()->settings()->testAttribute(
+            QWebEngineSettings::ForceDarkMode));
+
+        s.setTheme("dark");
+        QVERIFY(tab.webView()->settings()->testAttribute(
+            QWebEngineSettings::ForceDarkMode));
+
+        s.setTheme("light");
+        QVERIFY(!tab.webView()->settings()->testAttribute(
+            QWebEngineSettings::ForceDarkMode));
+
+        s.setTheme("system");
+    }
+
+    void theme_darkThemeIsAppliedToNewAndReplacedPages()
+    {
+        auto &s = SettingsManager::instance();
+        s.setTheme("dark");
+
+        BrowserTab tab;
+        QVERIFY(tab.webView()->settings()->testAttribute(
+            QWebEngineSettings::ForceDarkMode));
+
+        auto *profile = new QWebEngineProfile(&tab);
+        tab.setPage(new QWebEnginePage(profile, tab.webView()));
+        QVERIFY(tab.webView()->settings()->testAttribute(
+            QWebEngineSettings::ForceDarkMode));
+
+        s.setTheme("system");
     }
 
     void sessionUrls_skipPrivateAndBlankTabs()

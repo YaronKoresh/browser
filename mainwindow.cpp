@@ -307,14 +307,29 @@ void MainWindow::setupAboutDialog()
     layout->addWidget(creatorLabel);
     layout->addWidget(descLabel);
     m_aboutDialog->setLayout(layout);
+    m_aboutDialog->setAutoFillBackground(true);
 
-    QPalette palette;
+    applyAboutDialogBackground();
+    connect(&ThemeManager::instance(), &ThemeManager::themeChanged,
+            this, &MainWindow::applyAboutDialogBackground);
+}
+
+void MainWindow::applyAboutDialogBackground()
+{
     QLinearGradient gradient(0, 0, 0, 400);
-    gradient.setColorAt(0, QColor(240, 255, 240));
-    gradient.setColorAt(1, QColor(220, 220, 220));
+    if (ThemeManager::instance().isDark()) {
+        gradient.setColorAt(0, QColor(40, 60, 40));
+        gradient.setColorAt(1, QColor(45, 45, 48));
+    } else {
+        gradient.setColorAt(0, QColor(240, 255, 240));
+        gradient.setColorAt(1, QColor(220, 220, 220));
+    }
+
+    // Only the background is overridden; text colours still come from the
+    // application palette, so the gradient must match its lightness.
+    QPalette palette;
     palette.setBrush(QPalette::Window, gradient);
     m_aboutDialog->setPalette(palette);
-    m_aboutDialog->setAutoFillBackground(true);
 }
 
 void MainWindow::setupAddressBarCompleter()
