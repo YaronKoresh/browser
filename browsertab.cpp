@@ -1,6 +1,7 @@
 #include "browsertab.h"
 #include "navigationmanager.h"
 #include "settingsmanager.h"
+#include "thememanager.h"
 
 #include <QtWidgets/QVBoxLayout>
 #include <QtWebEngineWidgets/QWebEngineView>
@@ -26,6 +27,10 @@ BrowserTab::BrowserTab(QWidget *parent)
     applyJavascriptSetting(SettingsManager::instance().javascriptEnabled());
     connect(&SettingsManager::instance(), &SettingsManager::javascriptEnabledChanged,
             this, &BrowserTab::applyJavascriptSetting);
+
+    applyTheme();
+    connect(&ThemeManager::instance(), &ThemeManager::themeChanged,
+            this, &BrowserTab::applyTheme);
 
     setZoomFactor(SettingsManager::instance().zoomFactor());
     connect(&SettingsManager::instance(), &SettingsManager::zoomFactorChanged,
@@ -96,6 +101,7 @@ void BrowserTab::setPage(QWebEnginePage *page)
     m_webView->setPage(page);
     watchPage(page);
     applyJavascriptSetting(SettingsManager::instance().javascriptEnabled());
+    applyTheme();
     setZoomFactor(SettingsManager::instance().zoomFactor());
 }
 
@@ -132,6 +138,14 @@ void BrowserTab::setZoomFactor(double factor)
 void BrowserTab::applyJavascriptSetting(bool enabled)
 {
     m_webView->settings()->setAttribute(QWebEngineSettings::JavascriptEnabled, enabled);
+}
+
+void BrowserTab::applyTheme()
+{
+    // Pages keep their own (usually white) colours unless Chromium is told to
+    // darken them, so the web view has to follow the browser theme explicitly.
+    m_webView->settings()->setAttribute(QWebEngineSettings::ForceDarkMode,
+                                        ThemeManager::instance().isDark());
 }
 
 void BrowserTab::onNavigationRequested(const QUrl &url)

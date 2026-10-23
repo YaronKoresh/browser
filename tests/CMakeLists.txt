@@ -63,6 +63,7 @@ if(TARGET Qt6::WebEngineWidgets AND TARGET Qt6::Widgets)
         ${CMAKE_SOURCE_DIR}/tabmanager.cpp
         ${CMAKE_SOURCE_DIR}/navigationmanager.cpp
         ${CMAKE_SOURCE_DIR}/settingsmanager.cpp
+        ${CMAKE_SOURCE_DIR}/thememanager.cpp
     )
     target_link_libraries(test_browsertab PRIVATE
         Qt6::Test Qt6::Core Qt6::Widgets Qt6::WebEngineWidgets Qt6::WebEngineCore)

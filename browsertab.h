@@ -48,6 +48,7 @@ signals:
 
 private slots:
     void applyJavascriptSetting(bool enabled);
+    void applyTheme();
     void onNavigationRequested(const QUrl &url);
     void onUrlChanged(const QUrl &url);
     void onNewWindowRequested(QWebEngineNewWindowRequest &request);
