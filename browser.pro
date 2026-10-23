@@ -33,6 +33,7 @@ HEADERS += \
     findbar.h \
     preferencesdialog.h \
     downloaddialog.h \
+    downloadnotification.h \
     mainwindow.h
 
 SOURCES += \
@@ -49,6 +50,7 @@ SOURCES += \
     findbar.cpp \
     preferencesdialog.cpp \
     downloaddialog.cpp \
+    downloadnotification.cpp \
     mainwindow.cpp
 
 win32:RC_FILE = browser.rc

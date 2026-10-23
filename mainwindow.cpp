@@ -12,6 +12,7 @@
 #include "downloaddialog.h"
 #include "preferencesdialog.h"
 #include "findbar.h"
+#include "downloadnotification.h"
 
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QHBoxLayout>
@@ -33,7 +34,6 @@
 #include <QtGui/QKeySequence>
 #include <QtGui/QPalette>
 #include <QtGui/QLinearGradient>
-#include <QtGui/QDesktopServices>
 #include <QtCore/QStringListModel>
 #include <QtWebEngineCore/QWebEngineProfile>
 #include <QtWebEngineCore/QWebEnginePage>
@@ -135,6 +135,11 @@ void MainWindow::setupCentralUI()
 
     m_findBar = new FindBar(this);
     mainLayout->addWidget(m_findBar);
+
+    m_downloadNotices = new QVBoxLayout;
+    m_downloadNotices->setContentsMargins(0, 0, 0, 0);
+    m_downloadNotices->setSpacing(0);
+    mainLayout->addLayout(m_downloadNotices);
 
     centralWidget->setLayout(mainLayout);
     setCentralWidget(centralWidget);
@@ -669,11 +674,7 @@ void MainWindow::onDownloadCompleted(int id, const QString &savePath)
         tr("Downloaded %1 to %2").arg(item.fileName, savePath),
         AppConstants::STATUS_TIMEOUT_LONG);
 
-    const QFileInfo saved(savePath);
-    if (Utils::isLaunchableProgram(saved.fileName()))
-        QDesktopServices::openUrl(QUrl::fromLocalFile(saved.absolutePath()));
-    else
-        QDesktopServices::openUrl(QUrl::fromLocalFile(savePath));
+    m_downloadNotices->addWidget(new DownloadNotification(savePath, this));
 }
 
 void MainWindow::onDownloadFailed(int id, const QString &error)

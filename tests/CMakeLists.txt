@@ -115,6 +115,15 @@ if(TARGET Qt6::Widgets)
     target_include_directories(test_downloaddialog PRIVATE ${CMAKE_SOURCE_DIR})
     add_test(NAME DownloadDialogTest COMMAND test_downloaddialog)
     set_tests_properties(DownloadDialogTest PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
+
+    add_executable(test_downloadnotification
+        test_downloadnotification.cpp
+        ${CMAKE_SOURCE_DIR}/downloadnotification.cpp
+    )
+    target_link_libraries(test_downloadnotification PRIVATE Qt6::Test Qt6::Core Qt6::Widgets)
+    target_include_directories(test_downloadnotification PRIVATE ${CMAKE_SOURCE_DIR})
+    add_test(NAME DownloadNotificationTest COMMAND test_downloadnotification)
+    set_tests_properties(DownloadNotificationTest PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
 endif()
 
 if(TARGET Qt6::Widgets AND TARGET Qt6::WebEngineWidgets AND TARGET Qt6::PrintSupport)
@@ -132,6 +141,7 @@ if(TARGET Qt6::Widgets AND TARGET Qt6::WebEngineWidgets AND TARGET Qt6::PrintSup
         ${CMAKE_SOURCE_DIR}/downloadmanager.cpp
         ${CMAKE_SOURCE_DIR}/downloadmodel.cpp
         ${CMAKE_SOURCE_DIR}/downloaddialog.cpp
+        ${CMAKE_SOURCE_DIR}/downloadnotification.cpp
         ${CMAKE_SOURCE_DIR}/preferencesdialog.cpp
         ${CMAKE_SOURCE_DIR}/findbar.cpp
     )

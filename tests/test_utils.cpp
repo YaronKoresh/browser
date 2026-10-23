@@ -174,6 +174,19 @@ private slots:
         QVERIFY(Utils::isLaunchableProgram("archive.tar.sh"));
     }
 
+    void isLaunchableProgram_trailingDotsAndSpacesAreIgnored()
+    {
+        QVERIFY(Utils::isLaunchableProgram("setup.exe."));
+        QVERIFY(Utils::isLaunchableProgram("setup.exe "));
+        QVERIFY(Utils::isLaunchableProgram("setup.exe. . ."));
+        QVERIFY(Utils::isLaunchableProgram("run.sh.."));
+        QVERIFY(Utils::isLaunchableProgram("SETUP.EXE  "));
+        QVERIFY(!Utils::isLaunchableProgram("notes.txt."));
+        QVERIFY(!Utils::isLaunchableProgram("trailingdot.."));
+        QVERIFY(!Utils::isLaunchableProgram("exe."));
+        QVERIFY(!Utils::isLaunchableProgram(". . ."));
+    }
+
     void isLaunchableProgram_documentsAndMedia()
     {
         QVERIFY(!Utils::isLaunchableProgram("notes.txt"));

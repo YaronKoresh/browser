@@ -16,6 +16,7 @@
 #include "navigationmanager.h"
 #include "settingsmanager.h"
 #include "tabmanager.h"
+#include "downloadnotification.h"
 
 class UrlSink : public QObject {
     Q_OBJECT
@@ -136,14 +137,13 @@ private slots:
             QVERIFY(!model->index(row, 0).data().toString().contains("secret.example"));
     }
 
-    void download_completedProgramIsNotLaunched()
+    void download_completedFilesAreNeverOpenedButAnnounced()
     {
         MainWindow window;
         auto *downloads = window.findChild<DownloadManager *>();
         QVERIFY(downloads);
 
         UrlSink sink;
-        const QList<QUrl> &opened = sink.urls;
         QDesktopServices::setUrlHandler("file", &sink, "handle");
 
         QTemporaryDir dir;
@@ -156,14 +156,24 @@ private slots:
         };
 
         addItem("installer.exe");
-        addItem("run-me.sh");
+        addItem("run-me.sh.");
         addItem("notes.txt");
         QDesktopServices::unsetUrlHandler("file");
 
-        QCOMPARE(opened.size(), 3);
-        QCOMPARE(opened[0], QUrl::fromLocalFile(dir.path()));
-        QCOMPARE(opened[1], QUrl::fromLocalFile(dir.path()));
-        QCOMPARE(opened[2], QUrl::fromLocalFile(dir.path() + "/notes.txt"));
+        QVERIFY(sink.urls.isEmpty());
+
+        const auto notices = window.findChildren<DownloadNotification *>();
+        QCOMPARE(notices.size(), 3);
+        QCOMPARE(notices[0]->savePath(), dir.path() + "/installer.exe");
+        QCOMPARE(notices[1]->savePath(), dir.path() + "/run-me.sh.");
+        QCOMPARE(notices[2]->savePath(), dir.path() + "/notes.txt");
+        QVERIFY(notices[0]->isLaunchable());
+        QVERIFY(notices[1]->isLaunchable());
+        QVERIFY(!notices[2]->isLaunchable());
+        for (auto *notice : notices) {
+            QVERIFY(button(notice, "Open File"));
+            QVERIFY(button(notice, "Open Folder"));
+        }
     }
 
     void bookmarkStar_followsBookmarkChangesOfTheCurrentPage()

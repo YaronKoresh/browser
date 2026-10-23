@@ -36,6 +36,7 @@ set(HEADERS
     findbar.h
     preferencesdialog.h
     downloaddialog.h
+    downloadnotification.h
     mainwindow.h
 )
 
@@ -53,6 +54,7 @@ set(SOURCES
     findbar.cpp
     preferencesdialog.cpp
     downloaddialog.cpp
+    downloadnotification.cpp
     mainwindow.cpp
 )
 

@@ -73,6 +73,9 @@ constexpr const char *LABEL_FULLSCREEN    = "Fullscreen";
 constexpr const char *LABEL_PRINT         = "Print";
 constexpr const char *LABEL_SETTINGS      = "Settings";
 constexpr const char *LABEL_BOOKMARKS     = "Bookmarks";
+constexpr const char *LABEL_OPEN_FILE     = "Open File";
+constexpr const char *LABEL_OPEN_FOLDER   = "Open Folder";
+constexpr const char *LABEL_CONFIRM_RUN_PROGRAM = "I trust this program and want to run it";
 
 constexpr double ZOOM_STEP                = 0.1;
 constexpr double ZOOM_MIN                 = 0.25;

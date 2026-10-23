@@ -66,10 +66,15 @@ namespace detail {
         "sh", "bash", "run", "bin", "command", "desktop", "appimage", "app",
         "apk", "deb", "rpm", "pkg", "dmg", "py", "pl", "rb", "php"
     };
-    const int dot = fileName.lastIndexOf('.');
+    // Windows drops trailing dots and spaces from file names, so "setup.exe. "
+    // is saved, and runs, as "setup.exe".
+    QString name = fileName;
+    while (!name.isEmpty() && (name.endsWith('.') || name.back().isSpace()))
+        name.chop(1);
+    const int dot = name.lastIndexOf('.');
     if (dot < 0)
         return false;
-    const QString extension = fileName.mid(dot + 1).trimmed();
+    const QString extension = name.mid(dot + 1).trimmed();
     for (const char *candidate : kExtensions) {
         if (extension.compare(QLatin1String(candidate), Qt::CaseInsensitive) == 0)
             return true;
