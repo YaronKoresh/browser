@@ -8,6 +8,7 @@ A simple, lightweight web browser built with C++ and the Qt 6 framework, using t
 * Loading progress bar and status bar messages
 * "View Source" functionality
 * Download manager with "Save As" dialog
+* Downloads never open on their own: a bar shows each finished download with "Open File" and "Open Folder" buttons, and programs or scripts need a confirmation tick before "Open File" runs them
 
 ## How to Build
 This project is built using `qmake` and the MSVC compiler on Windows.

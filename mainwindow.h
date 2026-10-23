@@ -20,6 +20,7 @@ class BrowserTab;
 class DownloadManager;
 class BookmarkManager;
 class FindBar;
+class QVBoxLayout;
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
@@ -101,6 +102,7 @@ private:
     QPushButton       *m_bookmarkButton     = nullptr;
     QProgressBar      *m_progressBar        = nullptr;
     FindBar           *m_findBar            = nullptr;
+    QVBoxLayout       *m_downloadNotices    = nullptr;
     QCompleter        *m_completer          = nullptr;
     QStringListModel  *m_completerModel     = nullptr;
 
